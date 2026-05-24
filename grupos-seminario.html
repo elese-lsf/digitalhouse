@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupos — Seminario IA · Digital House</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f14;
+    --bg2: #16161f;
+    --bg3: #1e1e2e;
+    --purple: #7c5cf6;
+    --purple-light: #9d85f8;
+    --purple-dim: rgba(124,92,246,0.15);
+    --purple-border: rgba(124,92,246,0.35);
+    --green: #10d9a0;
+    --green-dim: rgba(16,217,160,0.12);
+    --green-border: rgba(16,217,160,0.3);
+    --gray: #8a8a9a;
+    --gray-light: #c4c4d0;
+    --white: #f4f4f8;
+    --text: #e2e2ec;
+    --muted: #5a5a72;
+    --border: rgba(255,255,255,0.07);
+    --radius: 16px;
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: '';
+    position: fixed; top: -20%; left: -10%;
+    width: 60%; height: 60%;
+    background: radial-gradient(ellipse, rgba(124,92,246,0.15) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; bottom: -10%; right: -10%;
+    width: 50%; height: 50%;
+    background: radial-gradient(ellipse, rgba(124,92,246,0.08) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    padding: 22px 0;
+    border-bottom: 1px solid var(--border);
+    position: relative; z-index: 1;
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto; padding: 0 28px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-size: 13px; font-weight: 800;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--white);
+  }
+  .logo span { color: var(--purple); }
+  .nav-badge {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--purple-light);
+    background: var(--purple-dim);
+    border: 1px solid var(--purple-border);
+    border-radius: 999px; padding: 4px 14px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 1100px; margin: 0 auto; padding: 60px 28px 48px;
+    position: relative; z-index: 1;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-eyebrow {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .tag {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 999px; border: 1px solid;
+  }
+  .tag-p { color: var(--purple-light); border-color: var(--purple-border); background: var(--purple-dim); }
+  .tag-g { color: var(--gray-light); border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); }
+
+  .hero h1 {
+    font-size: clamp(26px, 5vw, 46px);
+    font-weight: 900; letter-spacing: -0.03em;
+    color: var(--white); margin-bottom: 12px;
+    line-height: 1.1;
+  }
+  .hero h1 em { font-style: normal; color: var(--purple); }
+  .hero-desc { color: var(--gray); font-weight: 300; max-width: 520px; margin-bottom: 36px; }
+
+  .hero-stats {
+    display: flex; gap: 36px; flex-wrap: wrap;
+    padding-top: 28px; border-top: 1px solid var(--border);
+  }
+  .stat-num {
+    font-size: 24px; font-weight: 800;
+    color: var(--purple-light); line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em; margin-top: 4px;
+  }
+
+  /* ── LEGEND ── */
+  .legend {
+    max-width: 1100px; margin: 0 auto; padding: 20px 28px;
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    position: relative; z-index: 1;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--gray);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+  }
+  .dot-copilot { background: var(--green); }
+  .dot-regular { background: var(--muted); }
+
+  /* ── GRID DE GRUPOS ── */
+  .grupos-wrap {
+    max-width: 1100px; margin: 0 auto; padding: 40px 28px 60px;
+    position: relative; z-index: 1;
+  }
+  .grupos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  /* ── TARJETA DE GRUPO ── */
+  .grupo-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color .2s, transform .15s;
+  }
+  .grupo-card:hover {
+    border-color: var(--purple-border);
+    transform: translateY(-2px);
+  }
+  .grupo-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(90deg, rgba(124,92,246,.1) 0%, transparent 70%);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .grupo-num {
+    font-size: 11px; font-weight: 800;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--purple-light);
+  }
+  .grupo-count {
+    font-size: 11px; color: var(--muted);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 999px; padding: 2px 10px;
+  }
+
+  /* Filas de personas */
+  .persona {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+  .persona:last-child { border-bottom: none; }
+  .persona:hover { background: rgba(255,255,255,.02); }
+
+  .persona.copilot { background: rgba(16,217,160,.04); }
+  .persona.copilot:hover { background: rgba(16,217,160,.07); }
+
+  .persona-avatar {
+    width: 30px; height: 30px; flex-shrink: 0;
+    border-radius: 8px;
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 800;
+    text-transform: uppercase;
+  }
+  .avatar-copilot {
+    background: var(--green-dim);
+    border: 1px solid var(--green-border);
+    color: var(--green);
+  }
+  .avatar-regular {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .persona-info { flex: 1; min-width: 0; }
+  .persona-name {
+    font-size: 13px; font-weight: 600;
+    color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .persona.copilot .persona-name { color: var(--white); }
+  .persona-sector {
+    font-size: 11px; color: var(--muted);
+    margin-top: 1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .copilot-badge {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    color: var(--green);
+    background: var(--green-dim);
+    border: 1px solid var(--green-border);
+    border-radius: 6px; padding: 2px 8px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  /* ── NOTA GRUPO 9 ── */
+  .nota {
+    margin-top: 20px;
+    background: rgba(245,158,11,.06);
+    border: 1px solid rgba(245,158,11,.25);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 13px; color: #94a3b8;
+  }
+  .nota-icon { font-size: 16px; flex-shrink: 0; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 28px;
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+    position: relative; z-index: 1;
+  }
+  .footer-brand {
+    font-size: 12px; font-weight: 800;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  }
+  .footer-brand span { color: var(--purple); }
+  .footer-note { font-size: 12px; color: var(--muted); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .grupo-card { animation: fadeUp .4s ease both; }
+  .grupo-card:nth-child(1) { animation-delay: .02s; }
+  .grupo-card:nth-child(2) { animation-delay: .05s; }
+  .grupo-card:nth-child(3) { animation-delay: .08s; }
+  .grupo-card:nth-child(4) { animation-delay: .11s; }
+  .grupo-card:nth-child(5) { animation-delay: .14s; }
+  .grupo-card:nth-child(6) { animation-delay: .17s; }
+  .grupo-card:nth-child(7) { animation-delay: .20s; }
+  .grupo-card:nth-child(8) { animation-delay: .23s; }
+  .grupo-card:nth-child(9) { animation-delay: .26s; }
+
+  @media (max-width: 600px) {
+    .grupos-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 26px; }
+    .hero-stats { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">DIGITAL<span>HOUSE</span></div>
+    <div class="nav-badge">Grupos · Seminario IA 2026</div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">
+    <span class="tag tag-p">Prisma Medios de Pago</span>
+    <span class="tag tag-p">Newpay</span>
+    <span class="tag tag-g">45 participantes</span>
+  </div>
+  <h1>Distribución de<br><em>Grupos de Trabajo</em></h1>
+  <p class="hero-desc">9 grupos de 5 personas. Cada grupo cuenta con al menos una persona con licencia de Copilot 365 activa que oficia de referente técnico durante los ejercicios.</p>
+  <div class="hero-stats">
+    <div>
+      <div class="stat-num">9</div>
+      <div class="stat-label">Grupos</div>
+    </div>
+    <div>
+      <div class="stat-num">5</div>
+      <div class="stat-label">Personas por grupo</div>
+    </div>
+    <div>
+      <div class="stat-num">9</div>
+      <div class="stat-label">Con licencia Copilot</div>
+    </div>
+    <div>
+      <div class="stat-num">45</div>
+      <div class="stat-label">Total participantes</div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-dot dot-copilot"></div>
+    <span>Tiene licencia Copilot 365 — referente del grupo</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot dot-regular"></div>
+    <span>Participante sin licencia</span>
+  </div>
+</div>
+
+<div class="grupos-wrap">
+  <div class="grupos-grid">
+
+    <!-- GRUPO 1 -->
+    <div class="grupo-card">
+      <div class="grupo-head">
+        <div class="grupo-num">Grupo 1</div>
+        <div class="grupo-count">5 personas</div>
+      </div>
+      <div class="persona copilot">
+        <div class="persona-avatar avatar-copilot">KB</div>
+        <div class="persona-info">
+          <div class="persona-name">Bravo Montilla, Kenya</div>
+          <div class="persona-sector">DevOps &amp; Delivery</div>
+        </div>
+        <div class="copilot-badge">Copilot ✓</div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">CA</div>
+        <div class="persona-info">
+          <div class="persona-name">Abbruzzese, Christian</div>
+          <div class="persona-sector">T&amp;O Newpay</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">BJ</div>
+        <div class="persona-info">
+          <div class="persona-name">Blasi, Juan Carlos</div>
+          <div class="persona-sector">Issuing Operations</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">LJ</div>
+        <div class="persona-info">
+          <div class="persona-name">Lescano, Javier</div>
+          <div class="persona-sector">DevOps &amp; Delivery</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">MJ</div>
+        <div class="persona-info">
+          <div class="persona-name">Medina, Jonatan</div>
+          <div class="persona-sector">Information Security</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRUPO 2 -->
+    <div class="grupo-card">
+      <div class="grupo-head">
+        <div class="grupo-num">Grupo 2</div>
+        <div class="grupo-count">5 personas</div>
+      </div>
+      <div class="persona copilot">
+        <div class="persona-avatar avatar-copilot">CA</div>
+        <div class="persona-info">
+          <div class="persona-name">Calio, Anabella</div>
+          <div class="persona-sector">Risk Newpay</div>
+        </div>
+        <div class="copilot-badge">Copilot ✓</div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">AA</div>
+        <div class="persona-info">
+          <div class="persona-name">Alvarado Medina, Aileen</div>
+          <div class="persona-sector">T&amp;O Newpay / IT Instant</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">BD</div>
+        <div class="persona-info">
+          <div class="persona-name">Broullon Ramirez, Damian</div>
+          <div class="persona-sector">Issuing Operations</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">LM</div>
+        <div class="persona-info">
+          <div class="persona-name">Lopez Ramirez, Mariana</div>
+          <div class="persona-sector">DevOps &amp; Delivery</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">MV</div>
+        <div class="persona-info">
+          <div class="persona-name">Martinez, Victor Daniel</div>
+          <div class="persona-sector">Issuing Digital Services</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRUPO 3 -->
+    <div class="grupo-card">
+      <div class="grupo-head">
+        <div class="grupo-num">Grupo 3</div>
+        <div class="grupo-count">5 personas</div>
+      </div>
+      <div class="persona copilot">
+        <div class="persona-avatar avatar-copilot">HD</div>
+        <div class="persona-info">
+          <div class="persona-name">Herskovits, Diego</div>
+          <div class="persona-sector">IT Core Issuing</div>
+        </div>
+        <div class="copilot-badge">Copilot ✓</div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">AL</div>
+        <div class="persona-info">
+          <div class="persona-name">Arce, Lionel</div>
+          <div class="persona-sector">T&amp;O Newpay</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">CD</div>
+        <div class="persona-info">
+          <div class="persona-name">Caballero, Daniela</div>
+          <div class="persona-sector">Issuing Operations</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">MM</div>
+        <div class="persona-info">
+          <div class="persona-name">Morana, Martin</div>
+          <div class="persona-sector">Issuing Digital Services</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">DS</div>
+        <div class="persona-info">
+          <div class="persona-name">Dubesarsky, Sergio</div>
+          <div class="persona-sector">IT Core Issuing</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRUPO 4 -->
+    <div class="grupo-card">
+      <div class="grupo-head">
+        <div class="grupo-num">Grupo 4</div>
+        <div class="grupo-count">5 personas</div>
+      </div>
+      <div class="persona copilot">
+        <div class="persona-avatar avatar-copilot">HA</div>
+        <div class="persona-info">
+          <div class="persona-name">Humke, Alberto</div>
+          <div class="persona-sector">Executive Area</div>
+        </div>
+        <div class="copilot-badge">Copilot ✓</div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">BJ</div>
+        <div class="persona-info">
+          <div class="persona-name">Bandeira, Juan Manuel</div>
+          <div class="persona-sector">T&amp;O Newpay</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">CJ</div>
+        <div class="persona-info">
+          <div class="persona-name">Castillo, Juan Pablo</div>
+          <div class="persona-sector">Issuing Operations</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">PR</div>
+        <div class="persona-info">
+          <div class="persona-name">Pinto, Rafael</div>
+          <div class="persona-sector">Issuing Digital Services</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">LA</div>
+        <div class="persona-info">
+          <div class="persona-name">Lopez Vargas, Angel</div>
+          <div class="persona-sector">IT Instant Payments</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRUPO 5 -->
+    <div class="grupo-card">
+      <div class="grupo-head">
+        <div class="grupo-num">Grupo 5</div>
+        <div class="grupo-count">5 personas</div>
+      </div>
+      <div class="persona copilot">
+        <div class="persona-avatar avatar-copilot">LA</div>
+        <div class="persona-info">
+          <div class="persona-name">Lacquaniti, Alejandro</div>
+          <div class="persona-sector">DevOps &amp; Delivery</div>
+        </div>
+        <div class="copilot-badge">Copilot ✓</div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">CD</div>
+        <div class="persona-info">
+          <div class="persona-name">Chaves, Diego</div>
+          <div class="persona-sector">T&amp;O Newpay</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">CP</div>
+        <div class="persona-info">
+          <div class="persona-name">Cordoba Barsotti, Pablo</div>
+          <div class="persona-sector">Issuing Operations</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">VJ</div>
+        <div class="persona-info">
+          <div class="persona-name">Vallejos, Joel</div>
+          <div class="persona-sector">Issuing Digital Services</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">RC</div>
+        <div class="persona-info">
+          <div class="persona-name">Rajcic, Carolina</div>
+          <div class="persona-sector">IT Instant Payments</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRUPO 6 -->
+    <div class="grupo-card">
+      <div class="grupo-head">
+        <div class="grupo-num">Grupo 6</div>
+        <div class="grupo-count">5 personas</div>
+      </div>
+      <div class="persona copilot">
+        <div class="persona-avatar avatar-copilot">LM</div>
+        <div class="persona-info">
+          <div class="persona-name">Lombardo, Mariangeles</div>
+          <div class="persona-sector">Issuing Operations</div>
+        </div>
+        <div class="copilot-badge">Copilot ✓</div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">FG</div>
+        <div class="persona-info">
+          <div class="persona-name">Fretes, Gaston</div>
+          <div class="persona-sector">T&amp;O Newpay</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">MP</div>
+        <div class="persona-info">
+          <div class="persona-name">Massa, Patricia</div>
+          <div class="persona-sector">Issuing Operations</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">RA</div>
+        <div class="persona-info">
+          <div class="persona-name">Rojas, Angel</div>
+          <div class="persona-sector">IT Issuing QA</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">MD</div>
+        <div class="persona-info">
+          <div class="persona-name">Micieli, Daniel</div>
+          <div class="persona-sector">Process Transformation &amp; RPA</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRUPO 7 -->
+    <div class="grupo-card">
+      <div class="grupo-head">
+        <div class="grupo-num">Grupo 7</div>
+        <div class="grupo-count">5 personas</div>
+      </div>
+      <div class="persona copilot">
+        <div class="persona-avatar avatar-copilot">PP</div>
+        <div class="persona-info">
+          <div class="persona-name">Parma, Paula</div>
+          <div class="persona-sector">People</div>
+        </div>
+        <div class="copilot-badge">Copilot ✓</div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">MJ</div>
+        <div class="persona-info">
+          <div class="persona-name">Martinez, Jorge</div>
+          <div class="persona-sector">T&amp;O Newpay</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">RM</div>
+        <div class="persona-info">
+          <div class="persona-name">Rolando, Mailen</div>
+          <div class="persona-sector">Issuing Operations</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">SM</div>
+        <div class="persona-info">
+          <div class="persona-name">Soria Pace, Martin</div>
+          <div class="persona-sector">IT Issuing QA</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">RD</div>
+        <div class="persona-info">
+          <div class="persona-name">Rodriguez Cestau, Diego</div>
+          <div class="persona-sector">Processing</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRUPO 8 -->
+    <div class="grupo-card">
+      <div class="grupo-head">
+        <div class="grupo-num">Grupo 8</div>
+        <div class="grupo-count">5 personas</div>
+      </div>
+      <div class="persona copilot">
+        <div class="persona-avatar avatar-copilot">SM</div>
+        <div class="persona-info">
+          <div class="persona-name">Sarmiento, Maria Gabriela</div>
+          <div class="persona-sector">DevOps &amp; Delivery</div>
+        </div>
+        <div class="copilot-badge">Copilot ✓</div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">PR</div>
+        <div class="persona-info">
+          <div class="persona-name">Padilla, Roberto</div>
+          <div class="persona-sector">T&amp;O Newpay</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">VM</div>
+        <div class="persona-info">
+          <div class="persona-name">Vodopiviz, Maria Silvia</div>
+          <div class="persona-sector">Issuing Operations</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">AF</div>
+        <div class="persona-info">
+          <div class="persona-name">Arrastia, Federico</div>
+          <div class="persona-sector">Risk Newpay</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">TA</div>
+        <div class="persona-info">
+          <div class="persona-name">Trovati, Arturo</div>
+          <div class="persona-sector">Servers &amp; Storage</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRUPO 9 -->
+    <div class="grupo-card">
+      <div class="grupo-head">
+        <div class="grupo-num">Grupo 9</div>
+        <div class="grupo-count">5 personas</div>
+      </div>
+      <div class="persona copilot">
+        <div class="persona-avatar avatar-copilot">SE</div>
+        <div class="persona-info">
+          <div class="persona-name">Sivira Hernandez, Estrellita</div>
+          <div class="persona-sector">Information Security</div>
+        </div>
+        <div class="copilot-badge">Copilot ✓</div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">PD</div>
+        <div class="persona-info">
+          <div class="persona-name">Pelizza, Diego</div>
+          <div class="persona-sector">T&amp;O Newpay</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">TM</div>
+        <div class="persona-info">
+          <div class="persona-name">Tredici, Marcelo</div>
+          <div class="persona-sector">Risk Newpay</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">HJ</div>
+        <div class="persona-info">
+          <div class="persona-name">Hierro, Juan Martin</div>
+          <div class="persona-sector">T&amp;O Prisma</div>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar avatar-regular">SJ</div>
+        <div class="persona-info">
+          <div class="persona-name">Scalella, Juan Manuel</div>
+          <div class="persona-sector">T&amp;O Newpay</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grupos-grid -->
+
+  <div class="nota">
+    <div class="nota-icon">💡</div>
+    <div>
+      <strong style="color:#f8c37a;">Nota sobre el Grupo 9:</strong> por la composición del listado (mayoría T&amp;O Newpay e Issuing Operations), este grupo concentra más personas del mismo sector. Los demás grupos están priorizados para mayor diversidad. Si querés ajustar algún integrante, podés intercambiar con cualquier persona de T&amp;O de otro grupo.
+    </div>
+  </div>
+
+</div><!-- /grupos-wrap -->
+
+<footer>
+  <div class="footer-brand">DIGITAL<span>HOUSE</span></div>
+  <div class="footer-note">Seminario IA Generativa para el Trabajo Diario · 45 participantes · 9 grupos</div>
+</footer>
+
+</body>
+</html>
