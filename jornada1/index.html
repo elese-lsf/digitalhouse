@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consignas Día 1 — Seminario IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0d0d14;
+  --bg2:     #13131f;
+  --bg3:     #1a1a2e;
+  --purple:  #7c5cf6;
+  --purpleL: #a48afb;
+  --purpleD: rgba(124,92,246,0.14);
+  --purpleB: rgba(124,92,246,0.32);
+  --green:   #10d9a0;
+  --greenD:  rgba(16,217,160,0.10);
+  --greenB:  rgba(16,217,160,0.28);
+  --amber:   #f59e0b;
+  --amberD:  rgba(245,158,11,0.10);
+  --amberB:  rgba(245,158,11,0.28);
+  --red:     #f87171;
+  --white:   #f0f0f8;
+  --text:    #dddde8;
+  --muted:   #6b6b85;
+  --border:  rgba(255,255,255,0.07);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;top:-20%;left:-10%;width:60%;height:60%;background:radial-gradient(ellipse,rgba(124,92,246,.12) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(13,13,20,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 20px;}
+.nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.nav-logo{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--white);}
+.nav-logo span{color:var(--purple);}
+.nav-badge{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purpleL);background:var(--purpleD);border:1px solid var(--purpleB);border-radius:999px;padding:3px 12px;}
+
+/* ── GROUP SELECTOR ── */
+.selector-wrap{max-width:760px;margin:0 auto;padding:32px 20px 16px;position:relative;z-index:1;}
+.selector-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.group-btns{display:flex;flex-wrap:wrap;gap:8px;}
+.g-btn{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.04em;}
+.g-btn:hover{border-color:var(--purpleB);color:var(--purpleL);}
+.g-btn.active{background:var(--purpleD);border-color:var(--purple);color:var(--white);}
+
+/* ── MAIN ── */
+.main{max-width:760px;margin:0 auto;padding:8px 20px 60px;position:relative;z-index:1;}
+
+/* ── GROUP VIEW (hidden by default) ── */
+.group-view{display:none;}
+.group-view.active{display:block;}
+
+/* ── GROUP HEADER ── */
+.group-header{margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.group-eyebrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;border:1px solid;}
+.tag-p{color:var(--purpleL);border-color:var(--purpleB);background:var(--purpleD);}
+.tag-g{color:var(--text);border-color:var(--border);background:rgba(255,255,255,.04);}
+.group-title{font-size:26px;font-weight:900;letter-spacing:-.02em;color:var(--white);margin-bottom:6px;}
+.group-title em{font-style:normal;color:var(--purple);}
+.group-members{font-size:12px;color:var(--muted);}
+
+/* ── EXERCISE CARD ── */
+.exercise{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;}
+.ex-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:14px;}
+.ex-num{width:36px;height:36px;flex-shrink:0;border-radius:10px;display:grid;place-items:center;font-size:14px;font-weight:900;}
+.ex-num-1{background:var(--purpleD);border:1px solid var(--purpleB);color:var(--purpleL);}
+.ex-num-2{background:var(--amberD);border:1px solid var(--amberB);color:var(--amber);}
+.ex-meta{flex:1;}
+.ex-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.ex-title{font-size:16px;font-weight:800;color:var(--white);line-height:1.3;}
+.ex-timing{font-size:11px;font-weight:600;color:var(--amber);background:var(--amberD);border:1px solid var(--amberB);border-radius:6px;padding:2px 10px;white-space:nowrap;align-self:flex-start;margin-top:2px;}
+
+/* ── SECTIONS INSIDE EXERCISE ── */
+.ex-body{padding:0;}
+.ex-section{padding:18px 22px;border-bottom:1px solid var(--border);}
+.ex-section:last-child{border-bottom:none;}
+.ex-section-label{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ex-section-label::before{content:'';display:inline-block;width:16px;height:2px;border-radius:2px;background:currentColor;}
+
+/* Scenario */
+.scenario{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.scenario p{font-size:14px;line-height:1.7;color:var(--text);}
+.scenario strong{color:var(--white);font-weight:600;}
+
+/* Steps */
+.steps{display:flex;flex-direction:column;gap:10px;}
+.step{display:flex;gap:12px;align-items:flex-start;}
+.step-n{width:26px;height:26px;flex-shrink:0;background:var(--purpleD);border:1px solid var(--purpleB);border-radius:7px;display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--purpleL);}
+.step-text{font-size:13px;color:var(--text);padding-top:3px;line-height:1.6;}
+.step-text strong{color:var(--white);}
+
+/* Prompt */
+.prompt-box{background:var(--greenD);border:1px solid var(--greenB);border-radius:10px;padding:16px 18px;}
+.prompt-label{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:10px;}
+.prompt-text{font-family:'JetBrains Mono','Courier New',monospace;font-size:12.5px;color:var(--green);line-height:1.75;white-space:pre-wrap;}
+.prompt-tip{font-size:11px;color:var(--muted);margin-top:12px;padding-top:10px;border-top:1px solid var(--greenB);font-style:italic;}
+.prompt-tip strong{color:var(--amber);font-style:normal;}
+
+/* Criteria */
+.criteria{display:flex;flex-direction:column;gap:8px;}
+.criterion{display:flex;align-items:flex-start;gap:10px;background:var(--bg3);border-radius:8px;padding:10px 14px;}
+.criterion-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.criterion-text{font-size:13px;color:var(--text);line-height:1.5;}
+.criterion-text strong{color:var(--white);}
+
+/* Deliverable */
+.deliverable{background:var(--amberD);border:1px solid var(--amberB);border-radius:10px;padding:16px 18px;}
+.deliverable-label{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
+.deliverable ul{display:flex;flex-direction:column;gap:7px;list-style:none;}
+.deliverable li{display:flex;gap:10px;font-size:13px;color:#c8aa80;line-height:1.55;}
+.deliverable li::before{content:'→';color:var(--amber);font-weight:700;flex-shrink:0;margin-top:1px;}
+
+/* Alert */
+.alert{border-radius:8px;padding:12px 16px;font-size:12px;line-height:1.6;margin-top:8px;}
+.alert-warn{background:var(--amberD);border:1px solid var(--amberB);color:#c8aa80;}
+.alert-ok{background:var(--greenD);border:1px solid var(--greenB);color:#80c8a8;}
+
+/* Empty state */
+.empty{text-align:center;padding:80px 20px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:16px;}
+.empty-text{font-size:15px;}
+</style>
+
+<style id="dl-styles">
+.doc-download {
+  margin: 12px 0 4px;
+}
+.doc-download-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(124,92,246,0.08);
+  border: 1px solid rgba(124,92,246,0.28);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+.doc-icon {
+  width: 40px; height: 40px; flex-shrink: 0;
+  background: rgba(124,92,246,0.15);
+  border-radius: 10px;
+  display: grid; place-items: center;
+  color: #a48afb;
+}
+.doc-info { flex: 1; min-width: 0; }
+.doc-title {
+  font-size: 13px; font-weight: 600; color: #f0f0f8;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.doc-meta { font-size: 11px; color: #6b6b85; margin-top: 2px; }
+.dl-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; font-weight: 700;
+  color: #a48afb;
+  background: rgba(124,92,246,0.15);
+  border: 1px solid rgba(124,92,246,0.35);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .2s;
+}
+.dl-btn:hover { background: rgba(124,92,246,0.28); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">DIGITAL<span>HOUSE</span></div>
+    <div class="nav-badge">Día 1 · Ejercicios grupales</div>
+  </div>
+</nav>
+
+<div class="selector-wrap">
+  <div class="selector-title">Seleccioná tu grupo</div>
+  <div class="group-btns">
+    <button class="g-btn" onclick="showGroup(0)">Grupo 1</button>
+    <button class="g-btn" onclick="showGroup(1)">Grupo 2</button>
+    <button class="g-btn" onclick="showGroup(2)">Grupo 3</button>
+    <button class="g-btn" onclick="showGroup(3)">Grupo 4</button>
+    <button class="g-btn" onclick="showGroup(4)">Grupo 5</button>
+    <button class="g-btn" onclick="showGroup(5)">Grupo 6</button>
+    <button class="g-btn" onclick="showGroup(6)">Grupo 7</button>
+    <button class="g-btn" onclick="showGroup(7)">Grupo 8</button>
+    <button class="g-btn" onclick="showGroup(8)">Grupo 9</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- EMPTY STATE -->
+  <div id="empty-state" class="empty">
+    <div class="empty-icon">👆</div>
+    <div class="empty-text">Seleccioná tu grupo para ver las consignas</div>
+  </div>
+
+  <!-- ══════════════ GRUPO 1 ══════════════ -->
+  <div class="group-view" id="g0">
+    <div class="group-header">
+      <div class="group-eyebrow">
+        <span class="tag tag-p">Grupo 1</span>
+        <span class="tag tag-g">DevOps · T&O Newpay · Issuing Ops · Info Security</span>
+      </div>
+      <div class="group-title">Ejercicios del <em>Día 1</em></div>
+      <div class="group-members">Bravo Montilla · Abbruzzese · Blasi · Lescano · Medina</div>
+    </div>
+
+    <!-- EJERCICIO 1 -->
+    <div class="exercise">
+      <div class="ex-header">
+        <div class="ex-num ex-num-1">1</div>
+        <div class="ex-meta">
+          <div class="ex-label">Módulo 2 · Ejercicio grupal</div>
+          <div class="ex-title">Redactar un email profesional con Copilot</div>
+        </div>
+        <div class="ex-timing">30 min</div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--purpleL)">Escenario asignado</div>
+          <div class="scenario">
+            <p>Son el equipo de <strong>Operaciones y Seguridad</strong> de Prisma/Newpay. Ayer a las 18:00 hs se detectó un incidente de seguridad que requirió deshabilitar temporalmente el acceso a una plataforma interna. El acceso ya fue restaurado, pero varios usuarios reportaron no poder trabajar durante 2 horas.</p>
+            <p style="margin-top:10px;">Tienen que redactar un <strong>email para todos los usuarios afectados</strong> explicando lo que pasó, las disculpas del caso y los pasos que se tomaron para que no vuelva a ocurrir.</p>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--purpleL)">Pasos a seguir</div>
+          <div class="steps">
+            <div class="step"><div class="step-n">1</div><div class="step-text">Lean el escenario juntos y asegúrense de entenderlo antes de escribir el prompt.</div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-text">Escriban su primer prompt usando la fórmula: <strong>Contexto + Tarea + Formato</strong>.</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-text">Corran el prompt en Copilot y lean el resultado. ¿Qué mejorarían? ¿Tono, extensión, claridad?</div></div>
+            <div class="step"><div class="step-n">4</div><div class="step-text">Iteren al menos una vez con una instrucción de mejora concreta.</div></div>
+            <div class="step"><div class="step-n">5</div><div class="step-text">Elijan la versión final y prepárense para presentarla (2 min): muestren el prompt que usaron y qué cambió entre la versión 1 y la final.</div></div>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--green)">Prompt de arranque sugerido</div>
+          <div class="prompt-box">
+            <div class="prompt-label">Prompt base — modificalo según lo que el grupo decida</div>
+            <div class="prompt-text">Soy parte del equipo de Seguridad de Prisma Medios de Pago.
+Redactá un email para usuarios internos afectados por un
+incidente de seguridad que duró 2 horas ayer.
+El acceso ya fue restaurado. Incluí: disculpas, qué pasó
+en términos simples y qué medidas tomamos.
+Tono: profesional y empático. Máximo 180 palabras.</div>
+            <div class="prompt-tip"><strong>Para iterar:</strong> "Hacelo más directo y reducí a 120 palabras" / "Agregá una línea de agradecimiento por la paciencia"</div>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div>
+          <div class="criteria">
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Tono adecuado:</strong> profesional pero humano, sin sonar a excusa corporativa.</div></div>
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Claridad:</strong> cualquier usuario entiende qué pasó sin tecnicismos.</div></div>
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Extensión:</strong> no más de 200 palabras. Conciso y directo.</div></div>
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Estructura:</strong> tiene saludo, cuerpo con lo ocurrido, acción tomada y cierre.</div></div>
+            <div class="criterion"><div class="criterion-icon">⚠️</div><div class="criterion-text"><strong>Atención:</strong> revisá que no haya datos inventados o afirmaciones que no puedan sostenerse.</div></div>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--amber)">Entregable</div>
+          <div class="deliverable">
+            <div class="deliverable-label">Al finalizar, el grupo tiene que tener</div>
+            <ul>
+              <li>El email final escrito (copiado en un doc de Word o en el chat de Teams)</li>
+              <li>El prompt que usaron en la versión final</li>
+              <li>Una frase explicando qué cambió entre el primer intento y el final</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EJERCICIO 2 -->
+    <div class="exercise">
+      <div class="ex-header">
+        <div class="ex-num ex-num-2">2</div>
+        <div class="ex-meta">
+          <div class="ex-label">Cierre Día 1 · Ejercicio grupal</div>
+          <div class="ex-title">Resumir un informe largo con Copilot</div>
+        </div>
+        <div class="ex-timing">30 min</div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--purpleL)">Documento asignado</div>
+          <div class="scenario">
+            <p><strong>Informe de Incidentes de Seguridad — Q3 2024</strong></p>
+            <p style="margin-top:8px;">Documento de 4 páginas con el registro trimestral de incidentes de seguridad detectados, clasificados por tipo, severidad e impacto. Incluye métricas de tiempo de respuesta y comparativa con el trimestre anterior.</p>
+            <p style="margin-top:8px;">👉 <strong>El instructor les comparte el archivo en Teams o por email antes del ejercicio.</strong></p>
+          </div>
+    <div class="doc-download" id="dl-g1">
+      <div class="doc-download-inner">
+        <div class="doc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="doc-info">
+          <div class="doc-title">Informe Incidentes de Seguridad Q3 2024</div>
+          <div class="doc-meta">G1_Incidentes_Seguridad_Q3.docx · Word (.docx)</div>
+        </div>
+        <button class="dl-btn" onclick="downloadDoc('G1')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
+    </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--purpleL)">Pasos a seguir</div>
+          <div class="steps">
+            <div class="step"><div class="step-n">1</div><div class="step-text">Abran el documento en Word.</div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-text">Usen Copilot para generar un resumen ejecutivo con el prompt sugerido.</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-text">Lean el resumen: ¿está completo? ¿Es útil para alguien que no leyó el original?</div></div>
+            <div class="step"><div class="step-n">4</div><div class="step-text">Ajusten con una iteración si hace falta.</div></div>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--green)">Prompt sugerido</div>
+          <div class="prompt-box">
+            <div class="prompt-label">Usarlo con el documento abierto en Word</div>
+            <div class="prompt-text">Resumí este documento en un máximo de 200 palabras
+para un gerente que no lo leyó.
+Incluí: problema o contexto principal, los 3 hallazgos
+más importantes y 2 recomendaciones concretas.
+Formato: párrafos cortos, sin tecnicismos.</div>
+            <div class="prompt-tip"><strong>Para iterar:</strong> "Reducí a 150 palabras y usá bullets para los hallazgos" / "Hacelo más ejecutivo, menos técnico"</div>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div>
+          <div class="criteria">
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Autocontenido:</strong> un gerente puede entenderlo sin leer el informe original.</div></div>
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Extensión:</strong> máximo 200 palabras. Si es más largo, iterar.</div></div>
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Incluye recomendaciones:</strong> no solo describe, también sugiere acciones.</div></div>
+            <div class="criterion"><div class="criterion-icon">⚠️</div><div class="criterion-text"><strong>Atención:</strong> verificar que los datos y cifras que mencione el resumen estén en el documento original.</div></div>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--amber)">Entregable</div>
+          <div class="deliverable">
+            <div class="deliverable-label">Al finalizar</div>
+            <ul>
+              <li>Resumen ejecutivo de 1 página generado con Copilot</li>
+              <li>El prompt final utilizado</li>
+              <li>Listos para presentar en 3 minutos si los llaman</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /g0 -->
+
+  <!-- ══════════════ GRUPO 2 ══════════════ -->
+  <div class="group-view" id="g1">
+    <div class="group-header">
+      <div class="group-eyebrow">
+        <span class="tag tag-p">Grupo 2</span>
+        <span class="tag tag-g">Risk NP · T&O Newpay · DevOps · Issuing Digital</span>
+      </div>
+      <div class="group-title">Ejercicios del <em>Día 1</em></div>
+      <div class="group-members">Calio · Alvarado Medina · Broullon Ramirez · Lopez Ramirez · Martinez Victor</div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header">
+        <div class="ex-num ex-num-1">1</div>
+        <div class="ex-meta">
+          <div class="ex-label">Módulo 2 · Ejercicio grupal</div>
+          <div class="ex-title">Redactar un email profesional con Copilot</div>
+        </div>
+        <div class="ex-timing">30 min</div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--purpleL)">Escenario asignado</div>
+          <div class="scenario">
+            <p>Son del área de <strong>Riesgos</strong>. Se detectó un patrón de transacciones sospechosas en una franja horaria específica. El área ya lo está investigando, pero quieren notificar al equipo comercial para que esté alerta si algún cliente consulta.</p>
+            <p style="margin-top:10px;">Redacten un <strong>email interno para el equipo comercial</strong> alertando sobre la situación, sin entrar en detalles técnicos, y con indicaciones claras de qué hacer si un cliente llama.</p>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--purpleL)">Pasos a seguir</div>
+          <div class="steps">
+            <div class="step"><div class="step-n">1</div><div class="step-text">Lean el escenario y definan qué información debe y qué NO debe incluir el email.</div></div>
+            <div class="step"><div class="step-n">2</div><div class="step-text">Escriban su primer prompt con la fórmula <strong>Contexto + Tarea + Formato</strong>.</div></div>
+            <div class="step"><div class="step-n">3</div><div class="step-text">Evalúen el resultado: ¿es apropiado para enviar al área comercial? ¿Revela demasiado?</div></div>
+            <div class="step"><div class="step-n">4</div><div class="step-text">Iteren al menos una vez ajustando el nivel de detalle o el tono.</div></div>
+            <div class="step"><div class="step-n">5</div><div class="step-text">Prepárense para mostrar el prompt final y explicar qué ajustaron.</div></div>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--green)">Prompt de arranque sugerido</div>
+          <div class="prompt-box">
+            <div class="prompt-label">Prompt base</div>
+            <div class="prompt-text">Soy del área de Riesgos de Prisma Medios de Pago.
+Redactá un email interno para el equipo comercial
+alertando que estamos investigando un patrón inusual
+de transacciones. No incluir detalles técnicos.
+Indicar que si un cliente llama, deben derivar al área
+de Riesgos sin dar más información.
+Tono: claro, profesional, sin generar alarma. Máx. 150 palabras.</div>
+            <div class="prompt-tip"><strong>Para iterar:</strong> "Agregá una línea con el contacto directo del área de Riesgos" / "Hacelo más breve y directo"</div>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div>
+          <div class="criteria">
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Nivel de detalle correcto:</strong> alerta sin revelar información sensible de la investigación.</div></div>
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Instrucción clara:</strong> el equipo comercial sabe exactamente qué hacer si lo contactan.</div></div>
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Tono:</strong> no genera pánico ni suena a algo menor. Equilibrado.</div></div>
+            <div class="criterion"><div class="criterion-icon">⚠️</div><div class="criterion-text"><strong>Atención:</strong> que la IA no invente datos sobre la investigación. Solo describe la situación general.</div></div>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--amber)">Entregable</div>
+          <div class="deliverable">
+            <div class="deliverable-label">Al finalizar</div>
+            <ul>
+              <li>Email final listo para usar</li>
+              <li>Prompt utilizado en la versión final</li>
+              <li>Qué cambió entre el primer intento y el resultado final</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header">
+        <div class="ex-num ex-num-2">2</div>
+        <div class="ex-meta">
+          <div class="ex-label">Cierre Día 1 · Ejercicio grupal</div>
+          <div class="ex-title">Resumir un informe largo con Copilot</div>
+        </div>
+        <div class="ex-timing">30 min</div>
+      </div>
+      <div class="ex-body">
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--purpleL)">Documento asignado</div>
+          <div class="scenario">
+            <p><strong>Informe de Gestión de Riesgos Operacionales — Semestre 1</strong></p>
+            <p style="margin-top:8px;">Documento de 5 páginas con el análisis de riesgos operacionales del primer semestre: categorías de riesgo identificadas, nivel de exposición, controles existentes y brechas detectadas.</p>
+            <p style="margin-top:8px;">👉 <strong>El instructor les comparte el archivo antes del ejercicio.</strong></p>
+          </div>
+    <div class="doc-download" id="dl-g2">
+      <div class="doc-download-inner">
+        <div class="doc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="doc-info">
+          <div class="doc-title">Informe Riesgos Operacionales S1 2024</div>
+          <div class="doc-meta">G2_Riesgos_Operacionales_S1.docx · Word (.docx)</div>
+        </div>
+        <button class="dl-btn" onclick="downloadDoc('G2')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
+    </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--green)">Prompt sugerido</div>
+          <div class="prompt-box">
+            <div class="prompt-label">Usarlo con el documento abierto en Word</div>
+            <div class="prompt-text">Resumí este informe en máximo 200 palabras
+para presentarlo al comité de dirección.
+Incluí: los 3 riesgos más críticos identificados,
+el nivel de exposición actual y las 2 acciones
+prioritarias recomendadas.
+Sin tecnicismos. Párrafos cortos.</div>
+            <div class="prompt-tip"><strong>Para iterar:</strong> "Organizá los riesgos en una tabla con columnas: Riesgo, Nivel, Acción"</div>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div>
+          <div class="criteria">
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Ejecutivo:</strong> directo al punto, sin introducción larga.</div></div>
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Accionable:</strong> incluye qué hacer, no solo qué pasó.</div></div>
+            <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Verificado:</strong> los datos del resumen se corresponden con el documento original.</div></div>
+          </div>
+        </div>
+        <div class="ex-section">
+          <div class="ex-section-label" style="color:var(--amber)">Entregable</div>
+          <div class="deliverable">
+            <div class="deliverable-label">Al finalizar</div>
+            <ul>
+              <li>Resumen ejecutivo generado con Copilot (máx. 1 página)</li>
+              <li>Prompt final utilizado</li>
+              <li>Listos para presentar en 3 minutos si los llaman</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /g1 -->
+
+  <!-- GRUPOS 3-9: estructura idéntica con escenarios distintos -->
+
+  <!-- ══════════════ GRUPO 3 ══════════════ -->
+  <div class="group-view" id="g2">
+    <div class="group-header">
+      <div class="group-eyebrow"><span class="tag tag-p">Grupo 3</span><span class="tag tag-g">IT Core · T&O Newpay · Issuing Ops · Issuing Digital</span></div>
+      <div class="group-title">Ejercicios del <em>Día 1</em></div>
+      <div class="group-members">Herskovits · Arce · Caballero · Morana · Dubesarsky</div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-1">1</div><div class="ex-meta"><div class="ex-label">Módulo 2 · Ejercicio grupal</div><div class="ex-title">Redactar un email profesional con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario asignado</div><div class="scenario"><p>Son del área de <strong>IT</strong>. La semana que viene se realiza una actualización crítica del sistema de procesamiento que va a implicar una ventana de mantenimiento de 4 horas un sábado a las 2 AM.</p><p style="margin-top:10px;">Redacten el <strong>email de comunicación a todos los usuarios</strong> avisando del mantenimiento programado, qué sistemas estarán afectados y qué deben hacer si necesitan acceso urgente en ese horario.</p></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Pasos a seguir</div><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-text">Identifiquen qué información es imprescindible incluir en este tipo de comunicado.</div></div><div class="step"><div class="step-n">2</div><div class="step-text">Escriban el prompt con la fórmula <strong>Contexto + Tarea + Formato</strong>.</div></div><div class="step"><div class="step-n">3</div><div class="step-text">Evalúen si el tono es adecuado para usuarios no técnicos.</div></div><div class="step"><div class="step-n">4</div><div class="step-text">Iteren para mejorar claridad o agregar información que falte.</div></div><div class="step"><div class="step-n">5</div><div class="step-text">Prepárense para mostrar el prompt final y qué cambió.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt de arranque sugerido</div><div class="prompt-box"><div class="prompt-label">Prompt base</div><div class="prompt-text">Soy del área de IT de Prisma Medios de Pago.
+Redactá un email para todos los usuarios del sistema
+avisando de un mantenimiento programado el sábado
+próximo de 2 AM a 6 AM. Los sistemas de procesamiento
+estarán fuera de servicio. Si hay urgencia, contactar
+a soporte al [número/email].
+Tono: claro, sin tecnicismos. Máximo 180 palabras.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá un asunto de email llamativo" / "Hacelo más breve y directo"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Claridad:</strong> cualquier usuario no técnico entiende qué pasará y qué hacer.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Información completa:</strong> fecha, horario, sistemas afectados y contacto de urgencia.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Tono:</strong> informativo sin generar alarma.</div></div><div class="criterion"><div class="criterion-icon">⚠️</div><div class="criterion-text"><strong>Atención:</strong> reemplazar cualquier dato entre corchetes [ ] antes de enviarlo.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Entregable</div><div class="deliverable"><div class="deliverable-label">Al finalizar</div><ul><li>Email final con asunto incluido</li><li>Prompt utilizado en la versión final</li><li>Qué cambió entre versión 1 y final</li></ul></div></div>
+      </div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-2">2</div><div class="ex-meta"><div class="ex-label">Cierre Día 1 · Ejercicio grupal</div><div class="ex-title">Resumir un informe largo con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Documento asignado</div><div class="scenario"><p><strong>Informe de Estado de Infraestructura IT — Q3 2024</strong></p><p style="margin-top:8px;">4 páginas con el estado actual de servidores, disponibilidad de sistemas, incidencias críticas del trimestre y plan de mejoras para Q4.</p><p style="margin-top:8px;">👉 <strong>El instructor les comparte el archivo antes del ejercicio.</strong></p></div>
+    <div class="doc-download" id="dl-g3">
+      <div class="doc-download-inner">
+        <div class="doc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="doc-info">
+          <div class="doc-title">Informe Infraestructura IT Q3 2024</div>
+          <div class="doc-meta">G3_Infraestructura_IT_Q3.docx · Word (.docx)</div>
+        </div>
+        <button class="dl-btn" onclick="downloadDoc('G3')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
+    </div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt sugerido</div><div class="prompt-box"><div class="prompt-label">Usarlo con el documento abierto en Word</div><div class="prompt-text">Resumí este informe en máximo 200 palabras
+para un gerente no técnico.
+Incluí: estado general de la infraestructura,
+las 3 incidencias más relevantes del trimestre
+y las mejoras planificadas para el próximo período.
+Sin tecnicismos. Formato de párrafos cortos.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá una tabla con: Sistema, Estado, Incidencias"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Accesible:</strong> entendible para alguien sin conocimientos técnicos.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Balanceado:</strong> menciona lo que salió bien y lo que hay que mejorar.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Orientado a decisión:</strong> el lector sabe si hay algo que requiere atención urgente.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Entregable</div><div class="deliverable"><div class="deliverable-label">Al finalizar</div><ul><li>Resumen ejecutivo de máximo 1 página</li><li>Prompt final utilizado</li><li>Listos para presentar en 3 minutos</li></ul></div></div>
+      </div>
+    </div>
+  </div><!-- /g2 -->
+
+  <!-- ══════════════ GRUPO 4 ══════════════ -->
+  <div class="group-view" id="g3">
+    <div class="group-header">
+      <div class="group-eyebrow"><span class="tag tag-p">Grupo 4</span><span class="tag tag-g">Executive · T&O Newpay · Issuing Ops · IT Instant</span></div>
+      <div class="group-title">Ejercicios del <em>Día 1</em></div>
+      <div class="group-members">Humke · Bandeira · Castillo · Pinto · Lopez Vargas</div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-1">1</div><div class="ex-meta"><div class="ex-label">Módulo 2 · Ejercicio grupal</div><div class="ex-title">Redactar un email profesional con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario asignado</div><div class="scenario"><p>Son parte del equipo de <strong>Negocio / Área Ejecutiva</strong>. Un cliente clave del sector retail acaba de enviar un email consultando por qué sus volúmenes de transacciones cayeron un 15% el último mes. El equipo ya tiene la respuesta técnica, pero necesita comunicarla de manera ejecutiva y empática.</p><p style="margin-top:10px;">Redacten la <strong>respuesta al cliente</strong> explicando las causas de la caída (ajuste de parámetros de riesgo que fue corregido) y transmitiendo confianza sobre los próximos períodos.</p></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Pasos a seguir</div><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-text">Definan el tono correcto para responder a un cliente clave.</div></div><div class="step"><div class="step-n">2</div><div class="step-text">Escriban el prompt con <strong>Contexto + Tarea + Formato</strong>.</div></div><div class="step"><div class="step-n">3</div><div class="step-text">Evalúen: ¿el email genera confianza? ¿Es honesto sin alarmar?</div></div><div class="step"><div class="step-n">4</div><div class="step-text">Iteren mejorando el tono o la estructura.</div></div><div class="step"><div class="step-n">5</div><div class="step-text">Prepárense para mostrar su versión final.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt de arranque sugerido</div><div class="prompt-box"><div class="prompt-label">Prompt base</div><div class="prompt-text">Soy ejecutivo de cuenta en Prisma Medios de Pago.
+Redactá una respuesta a un cliente del sector retail
+que pregunta por qué sus transacciones cayeron 15%
+el último mes. La causa fue un ajuste de parámetros
+de riesgo que ya fue corregido. Transmitir confianza
+y proyección positiva para los próximos meses.
+Tono: ejecutivo, empático, sin tecnicismos. Máx. 200 palabras.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá una propuesta de llamada para hacer seguimiento" / "Hacelo más cálido y menos formal"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Honesto:</strong> explica la causa sin evasivas, pero sin sonar a excusa.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Generador de confianza:</strong> el cliente se queda tranquilo y con expectativas claras.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Accionable:</strong> propone un siguiente paso (llamada, reunión, reporte).</div></div><div class="criterion"><div class="criterion-icon">⚠️</div><div class="criterion-text"><strong>Atención:</strong> no prometer números específicos que no se puedan sostener.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Entregable</div><div class="deliverable"><div class="deliverable-label">Al finalizar</div><ul><li>Email de respuesta al cliente listo</li><li>Prompt final utilizado</li><li>Qué cambió entre versión 1 y final</li></ul></div></div>
+      </div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-2">2</div><div class="ex-meta"><div class="ex-label">Cierre Día 1 · Ejercicio grupal</div><div class="ex-title">Resumir un informe largo con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Documento asignado</div><div class="scenario"><p><strong>Informe de Performance Comercial — Semestre 1</strong></p><p style="margin-top:8px;">5 páginas con métricas de volumen de transacciones, evolución de clientes activos, análisis por segmento y comparativa con el período anterior.</p><p style="margin-top:8px;">👉 <strong>El instructor les comparte el archivo antes del ejercicio.</strong></p></div>
+    <div class="doc-download" id="dl-g4">
+      <div class="doc-download-inner">
+        <div class="doc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="doc-info">
+          <div class="doc-title">Informe Performance Comercial S1 2024</div>
+          <div class="doc-meta">G4_Performance_Comercial_S1.docx · Word (.docx)</div>
+        </div>
+        <button class="dl-btn" onclick="downloadDoc('G4')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
+    </div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt sugerido</div><div class="prompt-box"><div class="prompt-label">Usarlo con el documento abierto en Word</div><div class="prompt-text">Resumí este informe en máximo 200 palabras
+para presentarlo en una reunión de directorio.
+Incluí: resultado general del semestre, los 2
+indicadores más destacados (positivos o negativos)
+y las 2 acciones sugeridas para el próximo período.
+Tono ejecutivo. Sin detalles técnicos.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá los números clave en negrita" / "Reducí a 150 palabras"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Apto para directorio:</strong> nivel de abstracción correcto, orientado a decisión.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Equilibrado:</strong> menciona logros y áreas de mejora.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Conciso:</strong> máximo 200 palabras, sin relleno.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Entregable</div><div class="deliverable"><div class="deliverable-label">Al finalizar</div><ul><li>Resumen ejecutivo de 1 página</li><li>Prompt final utilizado</li><li>Listos para presentar en 3 minutos</li></ul></div></div>
+      </div>
+    </div>
+  </div><!-- /g3 -->
+
+  <!-- GRUPOS 5-9: misma lógica con escenarios propios -->
+
+  <!-- ══════════════ GRUPO 5 ══════════════ -->
+  <div class="group-view" id="g4">
+    <div class="group-header">
+      <div class="group-eyebrow"><span class="tag tag-p">Grupo 5</span><span class="tag tag-g">DevOps · T&O Newpay · Issuing Ops · IT Instant</span></div>
+      <div class="group-title">Ejercicios del <em>Día 1</em></div>
+      <div class="group-members">Lacquaniti · Chaves · Cordoba Barsotti · Vallejos · Rajcic</div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-1">1</div><div class="ex-meta"><div class="ex-label">Módulo 2 · Ejercicio grupal</div><div class="ex-title">Redactar un email profesional con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario asignado</div><div class="scenario"><p>Son del área de <strong>DevOps</strong>. El equipo acaba de cerrar un trimestre con una mejora significativa en los tiempos de despliegue: pasaron de 4 horas promedio a 45 minutos. Quieren comunicarlo internamente para visibilizar el logro.</p><p style="margin-top:10px;">Redacten un <strong>email interno celebrando el logro</strong> dirigido a toda la gerencia de tecnología, explicando qué se hizo, cuál es el impacto en el negocio y qué viene en el próximo trimestre.</p></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Pasos a seguir</div><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-text">Piensen en el tono: celebratorio pero profesional, sin sonar arrogante.</div></div><div class="step"><div class="step-n">2</div><div class="step-text">Escriban el prompt con <strong>Contexto + Tarea + Formato</strong>.</div></div><div class="step"><div class="step-n">3</div><div class="step-text">Evalúen si conecta el logro técnico con el impacto en el negocio.</div></div><div class="step"><div class="step-n">4</div><div class="step-text">Iteren para mejorar el impacto o agregar el próximo objetivo.</div></div><div class="step"><div class="step-n">5</div><div class="step-text">Prepárense para mostrar el proceso.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt de arranque sugerido</div><div class="prompt-box"><div class="prompt-label">Prompt base</div><div class="prompt-text">Soy del equipo de DevOps de Prisma Medios de Pago.
+Redactá un email interno para la gerencia de tecnología
+comunicando que redujimos el tiempo de despliegue
+de 4 horas a 45 minutos este trimestre.
+Explicar el impacto en el negocio en términos simples
+y anticipar el próximo objetivo del equipo.
+Tono: profesional y positivo. Máx. 200 palabras.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Empezá con el dato más impactante como gancho" / "Agregá un agradecimiento al equipo"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Impacto claro:</strong> la gerencia entiende por qué esto importa para el negocio.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Tono:</strong> celebratorio sin sonar a autobombo.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Próximo paso:</strong> menciona qué viene, mantiene el impulso.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Entregable</div><div class="deliverable"><div class="deliverable-label">Al finalizar</div><ul><li>Email final listo</li><li>Prompt utilizado en la versión final</li><li>Qué cambió entre versión 1 y final</li></ul></div></div>
+      </div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-2">2</div><div class="ex-meta"><div class="ex-label">Cierre Día 1 · Ejercicio grupal</div><div class="ex-title">Resumir un informe largo con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Documento asignado</div><div class="scenario"><p><strong>Informe de Operaciones de Pago — Cierre Q3</strong></p><p style="margin-top:8px;">4 páginas con indicadores de operaciones: volumen procesado, tasa de error, tiempos de respuesta, incidentes operativos y comparativa interanual.</p><p style="margin-top:8px;">👉 <strong>El instructor les comparte el archivo antes del ejercicio.</strong></p></div>
+    <div class="doc-download" id="dl-g5">
+      <div class="doc-download-inner">
+        <div class="doc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="doc-info">
+          <div class="doc-title">Informe Operaciones de Pago Q3 2024</div>
+          <div class="doc-meta">G5_Operaciones_Pago_Q3.docx · Word (.docx)</div>
+        </div>
+        <button class="dl-btn" onclick="downloadDoc('G5')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
+    </div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt sugerido</div><div class="prompt-box"><div class="prompt-label">Usarlo con el documento abierto en Word</div><div class="prompt-text">Resumí este informe operativo en máximo 200 palabras
+para el equipo de gerencia.
+Incluí: resultado general del trimestre, el indicador
+con mejor performance, el que más preocupa
+y las acciones recomendadas.
+Formato: párrafos cortos y concretos.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Presentalo como un semáforo: verde/amarillo/rojo por indicador"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Balanceado:</strong> no solo lo bueno, también lo que hay que mejorar.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Verificado:</strong> datos del resumen presentes en el documento original.</div></div></div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al finalizar</div><ul><li>Resumen ejecutivo de 1 página</li><li>Prompt final y qué cambió</li><li>Listos para presentar en 3 min</li></ul></div></div>
+      </div>
+    </div>
+  </div><!-- /g4 -->
+
+  <!-- ══════════════ GRUPOS 6-9: Escenarios RRHH, IT QA, People, Seguridad/Riesgo ══════════════ -->
+
+  <!-- GRUPO 6 -->
+  <div class="group-view" id="g5">
+    <div class="group-header">
+      <div class="group-eyebrow"><span class="tag tag-p">Grupo 6</span><span class="tag tag-g">Issuing Ops · T&O Newpay · IT QA · Process/RPA</span></div>
+      <div class="group-title">Ejercicios del <em>Día 1</em></div>
+      <div class="group-members">Lombardo · Fretes · Massa · Rojas · Micieli</div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-1">1</div><div class="ex-meta"><div class="ex-label">Módulo 2 · Ejercicio grupal</div><div class="ex-title">Redactar un email profesional con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario asignado</div><div class="scenario"><p>Son del área de <strong>Operaciones de Emisión</strong>. A partir del próximo mes cambia el proceso de cierre mensual: se incorpora un paso nuevo de validación automática que reduce el trabajo manual pero requiere que los analistas aprendan a interpretrar los nuevos reportes.</p><p style="margin-top:10px;">Redacten un <strong>comunicado interno</strong> avisando del cambio, explicando qué se simplifica, qué cambia en su rutina y cuándo estará disponible la capacitación.</p></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Pasos a seguir</div><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-text">Identifiquen qué genera más incertidumbre en este tipo de cambios y cómo el email puede reducirla.</div></div><div class="step"><div class="step-n">2</div><div class="step-text">Escriban el prompt con <strong>Contexto + Tarea + Formato</strong>.</div></div><div class="step"><div class="step-n">3</div><div class="step-text">Evalúen: ¿el tono invita a la adopción o genera resistencia?</div></div><div class="step"><div class="step-n">4</div><div class="step-text">Iteren para mejorar el mensaje o la claridad.</div></div><div class="step"><div class="step-n">5</div><div class="step-text">Prepárense para mostrar el proceso.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt de arranque sugerido</div><div class="prompt-box"><div class="prompt-label">Prompt base</div><div class="prompt-text">Soy del área de Operaciones de Emisión de Prisma.
+Redactá un comunicado interno para el equipo
+anunciando un cambio en el proceso de cierre mensual.
+Se incorpora validación automática: menos trabajo manual,
+pero requiere aprender a leer nuevos reportes.
+La capacitación será en 2 semanas.
+Tono: positivo y claro. Que no genere ansiedad. Máx. 200 palabras.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Estructuralo en: Qué cambia / Qué se simplifica / Qué necesitan hacer"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Reduce incertidumbre:</strong> el equipo sabe exactamente qué cambia y cuándo.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Positivo:</strong> destaca los beneficios del cambio.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Accionable:</strong> incluye el próximo paso concreto (capacitación).</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Entregable</div><div class="deliverable"><div class="deliverable-label">Al finalizar</div><ul><li>Comunicado final listo</li><li>Prompt utilizado</li><li>Qué cambió entre versión 1 y final</li></ul></div></div>
+      </div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-2">2</div><div class="ex-meta"><div class="ex-label">Cierre Día 1 · Ejercicio grupal</div><div class="ex-title">Resumir un informe largo con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Documento asignado</div><div class="scenario"><p><strong>Informe de Automatización de Procesos — Diagnóstico Inicial</strong></p><p style="margin-top:8px;">4 páginas con el relevamiento de procesos candidatos a automatización: descripción, tiempo invertido actualmente, potencial de ahorro y priorización por impacto.</p><p style="margin-top:8px;">👉 <strong>El instructor les comparte el archivo antes del ejercicio.</strong></p></div>
+    <div class="doc-download" id="dl-g6">
+      <div class="doc-download-inner">
+        <div class="doc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="doc-info">
+          <div class="doc-title">Diagnóstico de Automatización de Procesos 2024</div>
+          <div class="doc-meta">G6_Automatizacion_Diagnostico.docx · Word (.docx)</div>
+        </div>
+        <button class="dl-btn" onclick="downloadDoc('G6')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
+    </div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt sugerido</div><div class="prompt-box"><div class="prompt-label">Usarlo con el documento abierto en Word</div><div class="prompt-text">Resumí este diagnóstico de automatización en máximo 200 palabras
+para presentar a la gerencia de operaciones.
+Incluí: los 3 procesos con mayor potencial de ahorro,
+el tiempo total que se podría liberar y la
+recomendación de por dónde empezar.
+Sin tecnicismos.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Presentalo como ranking de los 3 procesos con: nombre, horas/mes actuales, ahorro estimado"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Concreto:</strong> menciona procesos específicos, no generalidades.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Orientado a acción:</strong> termina con una recomendación clara.</div></div></div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al finalizar</div><ul><li>Resumen ejecutivo de 1 página</li><li>Prompt final y qué cambió</li><li>Listos para presentar en 3 min</li></ul></div></div>
+      </div>
+    </div>
+  </div><!-- /g5 -->
+
+  <!-- GRUPO 7 -->
+  <div class="group-view" id="g6">
+    <div class="group-header">
+      <div class="group-eyebrow"><span class="tag tag-p">Grupo 7</span><span class="tag tag-g">People · T&O Newpay · Issuing Ops · IT QA · Processing</span></div>
+      <div class="group-title">Ejercicios del <em>Día 1</em></div>
+      <div class="group-members">Parma · Martinez Jorge · Rolando · Soria Pace · Rodriguez Cestau</div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-1">1</div><div class="ex-meta"><div class="ex-label">Módulo 2 · Ejercicio grupal</div><div class="ex-title">Redactar un email profesional con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario asignado</div><div class="scenario"><p>Son del área de <strong>People</strong>. Arranca una nueva política de trabajo híbrido: 3 días presenciales y 2 remotos por semana para todos los equipos. Habrá excepciones por área según necesidad operativa. El cambio empieza el mes próximo.</p><p style="margin-top:10px;">Redacten el <strong>comunicado oficial</strong> para toda la compañía anunciando la política, los criterios generales y cómo los equipos pueden consultar sobre excepciones.</p></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Pasos a seguir</div><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-text">Piensen en las preguntas que va a generar este comunicado y cómo anticiparlas en el texto.</div></div><div class="step"><div class="step-n">2</div><div class="step-text">Escriban el prompt con <strong>Contexto + Tarea + Formato</strong>.</div></div><div class="step"><div class="step-n">3</div><div class="step-text">Evalúen: ¿el tono es inclusivo y claro? ¿Deja preguntas abiertas?</div></div><div class="step"><div class="step-n">4</div><div class="step-text">Iteren para mejorar claridad o anticipar objeciones frecuentes.</div></div><div class="step"><div class="step-n">5</div><div class="step-text">Prepárense para mostrar el proceso.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt de arranque sugerido</div><div class="prompt-box"><div class="prompt-label">Prompt base</div><div class="prompt-text">Soy del área de People de Prisma Medios de Pago.
+Redactá el comunicado oficial anunciando la nueva
+política de trabajo híbrido: 3 días presenciales,
+2 remotos. Arranca el mes próximo. Habrá excepciones
+por área. Los equipos pueden consultar las excepciones
+con sus líderes directos o con People.
+Tono: positivo, inclusivo y claro. Máx. 220 palabras.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá una sección de preguntas frecuentes al final (3 preguntas)" / "Hacelo más cálido y menos formal"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Claro:</strong> la política se entiende sin ambigüedades.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Anticipatorio:</strong> responde las dudas más comunes antes de que las pregunten.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Canal de consulta:</strong> indica a quién acudir con preguntas.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Entregable</div><div class="deliverable"><div class="deliverable-label">Al finalizar</div><ul><li>Comunicado oficial listo</li><li>Prompt utilizado</li><li>Qué cambió entre versión 1 y final</li></ul></div></div>
+      </div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-2">2</div><div class="ex-meta"><div class="ex-label">Cierre Día 1 · Ejercicio grupal</div><div class="ex-title">Resumir un informe largo con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Documento asignado</div><div class="scenario"><p><strong>Encuesta de Clima Organizacional — Resultados Anuales</strong></p><p style="margin-top:8px;">5 páginas con resultados de la encuesta de clima: NPS interno, dimensiones evaluadas (liderazgo, comunicación, desarrollo), tendencias vs año anterior y áreas de mejora prioritarias.</p><p style="margin-top:8px;">👉 <strong>El instructor les comparte el archivo antes del ejercicio.</strong></p></div>
+    <div class="doc-download" id="dl-g7">
+      <div class="doc-download-inner">
+        <div class="doc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="doc-info">
+          <div class="doc-title">Encuesta de Clima Organizacional 2024</div>
+          <div class="doc-meta">G7_Clima_Organizacional_2024.docx · Word (.docx)</div>
+        </div>
+        <button class="dl-btn" onclick="downloadDoc('G7')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
+    </div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt sugerido</div><div class="prompt-box"><div class="prompt-label">Usarlo con el documento abierto en Word</div><div class="prompt-text">Resumí este informe de clima organizacional en máximo 200 palabras
+para compartir con todos los líderes de equipo.
+Incluí: resultado general (NPS), las 2 fortalezas
+más destacadas, las 2 áreas de mejora prioritarias
+y el próximo paso que tomará el área de People.
+Tono empático y constructivo.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá una frase de agradecimiento a los participantes de la encuesta al inicio"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Empático:</strong> tono que cuida la motivación del equipo.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Balanceado:</strong> reconoce logros y mejoras sin dramatizar.</div></div></div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al finalizar</div><ul><li>Resumen ejecutivo de 1 página</li><li>Prompt final y qué cambió</li><li>Listos para presentar en 3 min</li></ul></div></div>
+      </div>
+    </div>
+  </div><!-- /g6 -->
+
+  <!-- GRUPO 8 -->
+  <div class="group-view" id="g7">
+    <div class="group-header">
+      <div class="group-eyebrow"><span class="tag tag-p">Grupo 8</span><span class="tag tag-g">DevOps · T&O Newpay · Issuing Ops · Risk NP · Servers</span></div>
+      <div class="group-title">Ejercicios del <em>Día 1</em></div>
+      <div class="group-members">Sarmiento · Padilla · Vodopiviz · Arrastia · Trovati</div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-1">1</div><div class="ex-meta"><div class="ex-label">Módulo 2 · Ejercicio grupal</div><div class="ex-title">Redactar un email profesional con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario asignado</div><div class="scenario"><p>Son un equipo mixto de <strong>Infraestructura, Operaciones y Riesgo</strong>. Se identificó que un servidor crítico alcanzó el 90% de capacidad de almacenamiento. Esto aún no generó incidentes, pero si no se actúa en 2 semanas podría afectar la disponibilidad del sistema.</p><p style="margin-top:10px;">Redacten un <strong>email de alerta preventiva para la gerencia de tecnología</strong> solicitando aprobación para ampliar la capacidad, explicando el riesgo en términos de negocio y proponiendo dos opciones de solución.</p></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Pasos a seguir</div><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-text">Piensen cómo traducir un problema técnico a lenguaje de negocio para la gerencia.</div></div><div class="step"><div class="step-n">2</div><div class="step-text">Escriban el prompt con <strong>Contexto + Tarea + Formato</strong>.</div></div><div class="step"><div class="step-n">3</div><div class="step-text">Evalúen: ¿la gerencia entiende la urgencia sin que suene a catástrofe?</div></div><div class="step"><div class="step-n">4</div><div class="step-text">Iteren para mejorar claridad o el balance entre urgencia y calma.</div></div><div class="step"><div class="step-n">5</div><div class="step-text">Prepárense para mostrar el proceso.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt de arranque sugerido</div><div class="prompt-box"><div class="prompt-label">Prompt base</div><div class="prompt-text">Soy del equipo de Infraestructura de Prisma Medios de Pago.
+Redactá un email de alerta preventiva para la gerencia
+de tecnología. Un servidor crítico está al 90% de capacidad.
+Sin acción en 2 semanas puede afectar disponibilidad.
+Proponer 2 opciones: ampliar almacenamiento en nube
+o migrar datos históricos. Solicitar aprobación.
+Tono: urgente pero no alarmista. Sin tecnicismos. Máx. 200 palabras.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá el impacto estimado en negocio si no se actúa" / "Ponés los pros y contras de cada opción en bullets"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Urgencia calibrada:</strong> la gerencia entiende que hay que actuar sin sentir que hay una crisis.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Propuesta concreta:</strong> incluye opciones con su lógica, no solo el problema.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Call to action:</strong> queda claro qué se necesita de la gerencia y en qué plazo.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Entregable</div><div class="deliverable"><div class="deliverable-label">Al finalizar</div><ul><li>Email de alerta listo</li><li>Prompt utilizado</li><li>Qué cambió entre versión 1 y final</li></ul></div></div>
+      </div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-2">2</div><div class="ex-meta"><div class="ex-label">Cierre Día 1 · Ejercicio grupal</div><div class="ex-title">Resumir un informe largo con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Documento asignado</div><div class="scenario"><p><strong>Informe de Capacidad y Disponibilidad de Infraestructura — Q3</strong></p><p style="margin-top:8px;">4 páginas con métricas de disponibilidad de sistemas, uso de recursos, incidentes por capacidad y proyecciones de crecimiento de demanda para los próximos 6 meses.</p><p style="margin-top:8px;">👉 <strong>El instructor les comparte el archivo antes del ejercicio.</strong></p></div>
+    <div class="doc-download" id="dl-g8">
+      <div class="doc-download-inner">
+        <div class="doc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="doc-info">
+          <div class="doc-title">Informe Capacidad e Infraestructura Q3 2024</div>
+          <div class="doc-meta">G8_Capacidad_Infraestructura_Q3.docx · Word (.docx)</div>
+        </div>
+        <button class="dl-btn" onclick="downloadDoc('G8')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
+    </div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt sugerido</div><div class="prompt-box"><div class="prompt-label">Usarlo con el documento abierto en Word</div><div class="prompt-text">Resumí este informe de infraestructura en máximo 200 palabras
+para el comité de tecnología.
+Incluí: estado actual de disponibilidad, el recurso
+más crítico en términos de capacidad, proyección
+de demanda y las 2 acciones recomendadas antes de fin de año.
+Sin tecnicismos.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Destaca en negrita los indicadores que están en zona de riesgo"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Proactivo:</strong> no solo describe el presente, anticipa lo que viene.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Priorizado:</strong> el comité sabe en qué hay que enfocarse primero.</div></div></div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al finalizar</div><ul><li>Resumen ejecutivo de 1 página</li><li>Prompt final y qué cambió</li><li>Listos para presentar en 3 min</li></ul></div></div>
+      </div>
+    </div>
+  </div><!-- /g7 -->
+
+  <!-- GRUPO 9 -->
+  <div class="group-view" id="g8">
+    <div class="group-header">
+      <div class="group-eyebrow"><span class="tag tag-p">Grupo 9</span><span class="tag tag-g">Info Security · T&O Newpay · Risk NP · T&O Prisma</span></div>
+      <div class="group-title">Ejercicios del <em>Día 1</em></div>
+      <div class="group-members">Sivira Hernandez · Pelizza · Tredici · Hierro · Scalella</div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-1">1</div><div class="ex-meta"><div class="ex-label">Módulo 2 · Ejercicio grupal</div><div class="ex-title">Redactar un email profesional con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario asignado</div><div class="scenario"><p>Son del área de <strong>Seguridad de la Información</strong>. Se viene el vencimiento anual de contraseñas del sistema. El año pasado el 40% de los usuarios no actualizó a tiempo y generó bloqueos masivos el día del vencimiento.</p><p style="margin-top:10px;">Redacten un <strong>email recordatorio</strong> para todos los usuarios con 15 días de anticipación, explicando cómo actualizar la contraseña, qué pasa si no lo hacen y dónde pedir ayuda.</p></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Pasos a seguir</div><div class="steps"><div class="step"><div class="step-n">1</div><div class="step-text">Piensen cómo lograr que los usuarios actúen sin que suene amenazante.</div></div><div class="step"><div class="step-n">2</div><div class="step-text">Escriban el prompt con <strong>Contexto + Tarea + Formato</strong>.</div></div><div class="step"><div class="step-n">3</div><div class="step-text">Evalúen: ¿es claro el paso a paso? ¿Motiva a actuar ahora?</div></div><div class="step"><div class="step-n">4</div><div class="step-text">Iteren mejorando la llamada a la acción o el tono.</div></div><div class="step"><div class="step-n">5</div><div class="step-text">Prepárense para mostrar el proceso.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt de arranque sugerido</div><div class="prompt-box"><div class="prompt-label">Prompt base</div><div class="prompt-text">Soy del área de Seguridad de la Información de Prisma.
+Redactá un email recordatorio para todos los usuarios
+avisando que en 15 días vence el período de contraseñas.
+Incluir: cómo actualizar (3 pasos simples), qué pasa
+si no lo hacen (bloqueo de acceso), y dónde pedir
+ayuda (mesa de ayuda IT).
+Tono: amigable y claro, no amenazante. Máx. 180 palabras.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá un asunto de email con sentido de urgencia" / "Ponés los 3 pasos como lista numerada"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Claro y accionable:</strong> el usuario sabe exactamente qué tiene que hacer y en cuánto tiempo.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Consecuencia visible:</strong> explica qué pasa si no actúa, sin sonar intimidante.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Soporte disponible:</strong> deja claro a dónde ir si necesitan ayuda.</div></div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Entregable</div><div class="deliverable"><div class="deliverable-label">Al finalizar</div><ul><li>Email recordatorio listo con asunto</li><li>Prompt utilizado</li><li>Qué cambió entre versión 1 y final</li></ul></div></div>
+      </div>
+    </div>
+    <div class="exercise">
+      <div class="ex-header"><div class="ex-num ex-num-2">2</div><div class="ex-meta"><div class="ex-label">Cierre Día 1 · Ejercicio grupal</div><div class="ex-title">Resumir un informe largo con Copilot</div></div><div class="ex-timing">30 min</div></div>
+      <div class="ex-body">
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Documento asignado</div><div class="scenario"><p><strong>Informe de Evaluación de Vulnerabilidades — Auditoría Anual</strong></p><p style="margin-top:8px;">5 páginas con el resultado de la auditoría de seguridad: vulnerabilidades detectadas por nivel de criticidad, comparativa con el año anterior, controles implementados y gaps pendientes de resolución.</p><p style="margin-top:8px;">👉 <strong>El instructor les comparte el archivo antes del ejercicio.</strong></p></div>
+    <div class="doc-download" id="dl-g9">
+      <div class="doc-download-inner">
+        <div class="doc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="doc-info">
+          <div class="doc-title">Auditoría de Vulnerabilidades 2024</div>
+          <div class="doc-meta">G9_Auditoria_Vulnerabilidades_2024.docx · Word (.docx)</div>
+        </div>
+        <button class="dl-btn" onclick="downloadDoc('G9')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar
+        </button>
+      </div>
+    </div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--green)">Prompt sugerido</div><div class="prompt-box"><div class="prompt-label">Usarlo con el documento abierto en Word</div><div class="prompt-text">Resumí este informe de auditoría de seguridad en máximo 200 palabras
+para el comité de riesgos.
+Incluí: cantidad de vulnerabilidades críticas detectadas,
+evolución respecto al año anterior, los 2 gaps más urgentes
+y las acciones recomendadas con prioridad.
+Sin tecnicismos. Directo al punto.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Organizá los gaps en tabla: Gap / Criticidad / Acción recomendada / Plazo"</div></div></div>
+        <div class="ex-section"><div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div><div class="criteria"><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Ejecutivo:</strong> el comité entiende el estado sin leer el informe completo.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Priorizado:</strong> queda claro qué resolver primero.</div></div><div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Verificado:</strong> datos del resumen presentes en el original.</div></div></div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al finalizar</div><ul><li>Resumen ejecutivo de 1 página</li><li>Prompt final y qué cambió</li><li>Listos para presentar en 3 min</li></ul></div></div>
+      </div>
+    </div>
+  </div><!-- /g8 -->
+
+</div><!-- /main -->
+
+<script>
+function showGroup(idx) {
+  document.getElementById('empty-state').style.display = 'none';
+  document.querySelectorAll('.group-view').forEach((el,i) => {
+    el.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.g-btn').forEach((btn,i) => {
+    btn.classList.toggle('active', i === idx);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Auto-detect group from URL hash e.g. #grupo3
+const hash = window.location.hash;
+if (hash) {
+  const match = hash.match(/grupo(\d+)/i);
+  if (match) showGroup(parseInt(match[1]) - 1);
+}
+</script>
+<script id='doc-data'>
+const DOC_URLS = {
+  "G1": { name: "G1_Incidentes_Seguridad_Q3.docx", label: "Informe Incidentes de Seguridad Q3 2024", url: "https://digitalhouse.theelabs.tech/informes/G1_Incidentes_Seguridad_Q3.docx" },
+  "G2": { name: "G2_Riesgos_Operacionales_S1.docx", label: "Informe Riesgos Operacionales S1 2024", url: "https://digitalhouse.theelabs.tech/informes/G2_Riesgos_Operacionales_S1.docx" },
+  "G3": { name: "G3_Infraestructura_IT_Q3.docx", label: "Informe Infraestructura IT Q3 2024", url: "https://digitalhouse.theelabs.tech/informes/G3_Infraestructura_IT_Q3.docx" },
+  "G4": { name: "G4_Performance_Comercial_S1.docx", label: "Informe Performance Comercial S1 2024", url: "https://digitalhouse.theelabs.tech/informes/G4_Performance_Comercial_S1.docx" },
+  "G5": { name: "G5_Operaciones_Pago_Q3.docx", label: "Informe Operaciones de Pago Q3 2024", url: "https://digitalhouse.theelabs.tech/informes/G5_Operaciones_Pago_Q3.docx" },
+  "G6": { name: "G6_Automatizacion_Diagnostico.docx", label: "Diagnóstico de Automatización de Procesos 2024", url: "https://digitalhouse.theelabs.tech/informes/G6_Automatizacion_Diagnostico.docx" },
+  "G7": { name: "G7_Clima_Organizacional_2024.docx", label: "Encuesta de Clima Organizacional 2024", url: "https://digitalhouse.theelabs.tech/informes/G7_Clima_Organizacional_2024.docx" },
+  "G8": { name: "G8_Capacidad_Infraestructura_Q3.docx", label: "Informe Capacidad e Infraestructura Q3 2024", url: "https://digitalhouse.theelabs.tech/informes/G8_Capacidad_Infraestructura_Q3.docx" },
+  "G9": { name: "G9_Auditoria_Vulnerabilidades_2024.docx", label: "Auditoría de Vulnerabilidades 2024", url: "https://digitalhouse.theelabs.tech/informes/G9_Auditoria_Vulnerabilidades_2024.docx" },
+};
+
+function downloadDoc(groupKey) {
+  const doc = DOC_URLS[groupKey] || DOC_DATA[groupKey];
+  if (!doc) return;
+  if (doc.url) {
+    const a = document.createElement('a');
+    a.href = doc.url;
+    a.download = doc.name;
+    a.target = '_blank';
+    a.click();
+  } else {
+    // fallback: base64
+    const bytes = atob(doc.data);
+    const arr = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    const blob = new Blob([arr], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = doc.name;
+    a.click();
+  }
+}
+</script>
+</body>
+</html>
