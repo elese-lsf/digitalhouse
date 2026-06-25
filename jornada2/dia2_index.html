@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Día 2 — Ejercicio integrador + Agentes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --bg:      #0d0d14;
+  --bg2:     #13131f;
+  --bg3:     #1a1a2e;
+  --purple:  #7c5cf6;
+  --purpleL: #a48afb;
+  --purpleD: rgba(124,92,246,0.14);
+  --purpleB: rgba(124,92,246,0.32);
+  --green:   #10d9a0;
+  --greenD:  rgba(16,217,160,0.10);
+  --greenB:  rgba(16,217,160,0.28);
+  --amber:   #f59e0b;
+  --amberD:  rgba(245,158,11,0.10);
+  --amberB:  rgba(245,158,11,0.28);
+  --teal:    #22d3ee;
+  --tealD:   rgba(34,211,238,0.10);
+  --tealB:   rgba(34,211,238,0.28);
+  --white:   #f0f0f8;
+  --text:    #dddde8;
+  --muted:   #6b6b85;
+  --border:  rgba(255,255,255,0.07);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+html{background:#0d0d14;}body{font-family:'Inter',sans-serif;background:#0d0d14;color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;top:-20%;left:-10%;width:60%;height:60%;background:radial-gradient(ellipse,rgba(124,92,246,.12) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(13,13,20,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 20px;}
+.nav-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.nav-logo{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--white);}
+.nav-logo span{color:var(--purple);}
+.nav-badge{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--purpleL);background:var(--purpleD);border:1px solid var(--purpleB);border-radius:999px;padding:3px 12px;}
+
+/* SELECTOR */
+.selector-wrap{max-width:760px;margin:0 auto;padding:32px 20px 16px;position:relative;z-index:1;}
+.selector-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.group-btns{display:flex;flex-wrap:wrap;gap:8px;}
+.g-btn{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.04em;}
+.g-btn:hover{border-color:var(--tealB);color:var(--teal);}
+.g-btn.active{background:var(--tealD);border-color:var(--teal);color:var(--white);}
+
+/* MAIN */
+.main{max-width:760px;margin:0 auto;padding:8px 20px 60px;position:relative;z-index:1;}
+.group-view{display:none;}
+.group-view.active{display:block;}
+
+/* GROUP HEADER */
+.group-header{margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.group-eyebrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;border:1px solid;}
+.tag-t{color:var(--teal);border-color:var(--tealB);background:var(--tealD);}
+.tag-g{color:var(--text);border-color:var(--border);background:rgba(255,255,255,.04);}
+.group-title{font-size:26px;font-weight:900;letter-spacing:-.02em;color:var(--white);margin-bottom:6px;}
+.group-title em{font-style:normal;color:var(--teal);}
+.group-members{font-size:12px;color:var(--muted);}
+
+/* CONTEXT PILL — módulos cubiertos */
+.context-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.pill{font-size:11px;font-weight:600;padding:5px 14px;border-radius:999px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);}
+.pill-active{border-color:var(--purpleB);background:var(--purpleD);color:var(--purpleL);}
+
+/* EXERCISE CARD */
+.exercise{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;}
+.ex-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:14px;}
+.ex-num{width:36px;height:36px;flex-shrink:0;border-radius:10px;display:grid;place-items:center;font-size:14px;font-weight:900;background:var(--tealD);border:1px solid var(--tealB);color:var(--teal);}
+.ex-meta{flex:1;}
+.ex-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.ex-title{font-size:16px;font-weight:800;color:var(--white);line-height:1.3;}
+.ex-timing{font-size:11px;font-weight:600;color:var(--amber);background:var(--amberD);border:1px solid var(--amberB);border-radius:6px;padding:2px 10px;white-space:nowrap;align-self:flex-start;margin-top:2px;}
+
+/* PHASE BANNER */
+.phase-banner{padding:10px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.phase-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.phase-dot-p{background:var(--purple);}
+.phase-dot-t{background:var(--teal);}
+.phase-dot-a{background:var(--amber);}
+.phase-label{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;}
+.phase-label-p{color:var(--purpleL);}
+.phase-label-t{color:var(--teal);}
+.phase-label-a{color:var(--amber);}
+.phase-desc{font-size:12px;color:var(--muted);margin-left:2px;}
+
+/* SECTIONS */
+.ex-
+.ex-section{padding:18px 22px;border-bottom:1px solid var(--border);}
+.ex-section:last-child{border-bottom:none;}
+.ex-section-label{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ex-section-label::before{content:'';display:inline-block;width:16px;height:2px;border-radius:2px;background:currentColor;}
+
+.scenario{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.scenario p{font-size:14px;line-height:1.7;color:var(--text);}
+.scenario strong{color:var(--white);font-weight:600;}
+
+.steps{display:flex;flex-direction:column;gap:10px;}
+.step{display:flex;gap:12px;align-items:flex-start;}
+.step-n{width:26px;height:26px;flex-shrink:0;background:var(--tealD);border:1px solid var(--tealB);border-radius:7px;display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--teal);}
+.step-text{font-size:13px;color:var(--text);padding-top:3px;line-height:1.6;}
+.step-text strong{color:var(--white);}
+
+/* TOOLS ROW */
+.tools-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.tool-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--tealB);background:var(--tealD);color:var(--teal);}
+
+/* PROMPTS BLOCK */
+.prompts-list{display:flex;flex-direction:column;gap:10px;}
+.prompt-item{background:var(--greenD);border:1px solid var(--greenB);border-radius:10px;padding:14px 16px;}
+.prompt-item-label{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:8px;}
+.prompt-text{font-family:'JetBrains Mono','Courier New',monospace;font-size:12px;color:var(--green);line-height:1.75;white-space:pre-wrap;}
+.prompt-tip{font-size:11px;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--greenB);font-style:italic;}
+.prompt-tip strong{color:var(--amber);font-style:normal;}
+
+/* CRITERIA */
+.criteria{display:flex;flex-direction:column;gap:8px;}
+.criterion{display:flex;align-items:flex-start;gap:10px;background:var(--bg3);border-radius:8px;padding:10px 14px;}
+.criterion-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.criterion-text{font-size:13px;color:var(--text);line-height:1.5;}
+.criterion-text strong{color:var(--white);}
+
+/* DELIVERABLE */
+.deliverable{background:var(--amberD);border:1px solid var(--amberB);border-radius:10px;padding:16px 18px;}
+.deliverable-label{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
+.deliverable ul{display:flex;flex-direction:column;gap:7px;list-style:none;}
+.deliverable li{display:flex;gap:10px;font-size:13px;color:#c8aa80;line-height:1.55;}
+.deliverable li::before{content:'→';color:var(--amber);font-weight:700;flex-shrink:0;margin-top:1px;}
+
+/* LIBRARY CARD */
+.library-card{background:var(--bg3);border:1px solid var(--purpleB);border-radius:10px;padding:16px 18px;margin-top:8px;}
+.library-card-label{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--purpleL);margin-bottom:12px;}
+.library-item{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.library-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none;}
+.library-item-title{font-size:11px;font-weight:700;color:var(--purpleL);margin-bottom:4px;}
+.library-item-prompt{font-family:'JetBrains Mono',monospace;font-size:11px;color:#a0c4a0;line-height:1.6;white-space:pre-wrap;}
+
+/* EMPTY */
+.empty{text-align:center;padding:80px 20px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:16px;}
+
+
+/* ── AGENT TAB STYLES (from agentes) ── */
+.nav-tabs{display:flex;gap:6px;}
+.nav-tab{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:5px 14px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.04em;}
+.nav-tab:hover{border-color:var(--purpleB);color:var(--purpleL);}
+.nav-tab.active{background:var(--purpleD);border-color:var(--purple);color:var(--white);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* agent card styles */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.card-icon{width:34px;height:34px;flex-shrink:0;border-radius:9px;display:grid;place-items:center;font-size:15px;}
+.card-icon-p{background:var(--purpleD);border:1px solid var(--purpleB);}
+.card-meta{flex:1;}
+.card-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+.card-title-sm{font-size:15px;font-weight:800;color:var(--white);}
+.card-
+.field-grid{display:grid;gap:10px;margin-top:8px;}
+.field{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.field-label{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.field-value{font-size:13px;color:var(--text);line-height:1.55;}
+.code-block{background:var(--bg3);border:1px solid var(--greenB);border-radius:10px;padding:16px 18px;margin:8px 0;}
+.code-label{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:10px;}
+.code-text{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--green);line-height:1.8;white-space:pre-wrap;}
+.code-tip{font-size:11px;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--greenB);font-style:italic;}
+.code-tip strong{color:var(--amber);font-style:normal;}
+.alert{border-radius:8px;padding:12px 16px;font-size:12px;line-height:1.6;margin:8px 0;display:flex;gap:10px;align-items:flex-start;}
+.alert-icon{font-size:14px;flex-shrink:0;}
+.alert-info{background:var(--tealD);border:1px solid var(--tealB);color:#80c0c8;}
+.agent-section-header{margin-bottom:24px;}
+.agent-section-eyebrow{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.agent-section-title{font-size:24px;font-weight:900;letter-spacing:-.02em;color:var(--white);line-height:1.2;}
+.agent-section-title em{font-style:normal;color:var(--purple);}
+.agent-section-sub{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6;}
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">DIGITAL<span>HOUSE</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchPanel('ejercicio')">Ejercicio integrador</button>
+      <button class="nav-tab" onclick="switchPanel('agente')">Armar agente</button>
+    </div>
+  </div>
+</nav>
+
+<div id="panel-ejercicio" class="tab-panel active">
+<div class="selector-wrap">
+  <div class="selector-title">Seleccioná tu grupo</div>
+  <div class="group-btns">
+    <button class="g-btn" onclick="showGroup(0)">Grupo 1</button>
+    <button class="g-btn" onclick="showGroup(1)">Grupo 2</button>
+    <button class="g-btn" onclick="showGroup(2)">Grupo 3</button>
+    <button class="g-btn" onclick="showGroup(3)">Grupo 4</button>
+    <button class="g-btn" onclick="showGroup(4)">Grupo 5</button>
+    <button class="g-btn" onclick="showGroup(5)">Grupo 6</button>
+    <button class="g-btn" onclick="showGroup(6)">Grupo 7</button>
+    <button class="g-btn" onclick="showGroup(7)">Grupo 8</button>
+    <button class="g-btn" onclick="showGroup(8)">Grupo 9</button>
+  </div>
+</div>
+
+<div class="main">
+<div id="empty-state" class="empty">
+  <div class="empty-icon">👆</div>
+  <div>Seleccioná tu grupo para ver la consigna</div>
+</div>
+
+<!-- ══ GRUPO 1 ══ DevOps · T&O · Info Security -->
+<div class="group-view" id="g0">
+  <div class="group-header">
+    <div class="group-eyebrow"><span class="tag tag-t">Grupo 1</span><span class="tag tag-g">Issuing Ops · T&O Newpay · Customer Service</span></div>
+    <div class="group-title">Ejercicio Integrador <em>Día 2</em></div>
+    <div class="group-members">Risso Hernandez · Gabarain · Maidana Marin · Arguello · Lozano Mamone · ★ Risso Hernandez</div>
+  </div>
+  <div class="context-pills">
+    <div class="pill pill-active">Módulo 4 — Automatización</div>
+    <div class="pill pill-active">Módulo 5 — Asistente personal</div>
+    <div class="pill pill-active">Biblioteca de prompts</div>
+  </div>
+
+  <div class="exercise">
+    <div class="ex-header">
+      <div class="ex-num">★</div>
+      <div class="ex-meta">
+        <div class="ex-label">Módulos 4 y 5 · Ejercicio integrador grupal</div>
+        <div class="ex-title">Kit de trabajo con IA para el área de DevOps e Info Security</div>
+      </div>
+      <div class="ex-timing">45 min</div>
+    </div>
+
+    <div class="phase-banner">
+      <div class="phase-dot phase-dot-p"></div>
+      <div class="phase-label phase-label-p">Contexto</div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--purpleL)">Escenario</div>
+      <div class="scenario">
+        <p>Son el equipo de <strong>DevOps e Information Security</strong>. Terminaron el Día 1 y ya saben cómo redactar con Copilot. Hoy tienen que dar un paso más: <strong>armar un kit de trabajo real</strong> que puedan usar desde el lunes.</p>
+        <p style="margin-top:10px;">El kit tiene tres partes: una rutina de automatización en Outlook/Teams, un flujo encadenado de prompts para una tarea recurrente del área, y una mini-biblioteca de prompts que se queden como referencia del equipo.</p>
+      </div>
+    </div>
+
+    <div class="phase-banner">
+      <div class="phase-dot phase-dot-t"></div>
+      <div class="phase-label phase-label-t">Parte 1 — Automatización</div>
+      <div class="phase-desc">15 min · Módulo 4</div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: diseñar una rutina automática</div>
+      <div class="scenario">
+        <p>El equipo recibe alertas de monitoreo por email casi a diario. Muchas no requieren acción inmediata pero hay que registrarlas. Diseñen una <strong>regla de automatización en Outlook</strong> que clasifique los emails de alerta por severidad y genere un resumen semanal automático en Teams para el canal de operaciones.</p>
+      </div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Abran Copilot en Outlook. Usen el prompt de abajo para diseñar la regla.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Copien la regla propuesta y <strong>evalúen si es aplicable a su entorno real</strong>: ¿qué adaptarían?</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Anoten 1-2 automatizaciones adicionales que identifican como útiles para el área.</div></div>
+      </div>
+      <div class="tools-row" style="margin-top:14px;">
+        <div class="tool-chip">📧 Copilot en Outlook</div>
+        <div class="tool-chip">💬 Copilot en Teams</div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompt Parte 1</div>
+      <div class="prompts-list">
+        <div class="prompt-item">
+          <div class="prompt-item-label">Diseño de regla Outlook</div>
+          <div class="prompt-text">Soy del equipo de DevOps e Info Security de Prisma.
+Recibo entre 10 y 20 emails de alerta de monitoreo por semana.
+Las alertas tienen asunto que incluye palabras como
+[CRITICAL], [WARNING] o [INFO].
+Diseñá una regla de Outlook que:
+1. Clasifique automáticamente por carpeta según severidad
+2. Marque como urgente los [CRITICAL]
+3. Genere un resumen semanal que pueda enviar al canal
+   de operaciones en Teams cada viernes a las 17hs.
+Dame también el texto del mensaje automático de Teams.</div>
+          <div class="prompt-tip"><strong>Para iterar:</strong> "Agregá que los [CRITICAL] también disparen una notificación al referente de guardia" / "Adaptalo para que el resumen incluya cuántos de cada tipo se recibieron"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-banner">
+      <div class="phase-dot phase-dot-t"></div>
+      <div class="phase-label phase-label-t">Parte 2 — Flujo encadenado</div>
+      <div class="phase-desc">15 min · Módulo 4</div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: construir un flujo de 3 prompts</div>
+      <div class="scenario">
+        <p>Cuando ocurre un incidente de seguridad, el equipo tiene que hacer tres cosas seguidas: <strong>documentar el incidente, notificar a las partes afectadas y generar el ticket de seguimiento</strong>. Hoy van a encadenar esos 3 pasos con prompts consecutivos en Copilot.</p>
+      </div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Corran el <strong>Prompt A</strong> para documentar el incidente.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Sin borrar el contexto, corran el <strong>Prompt B</strong> para generar la notificación.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Corran el <strong>Prompt C</strong> para generar el ticket de seguimiento con los datos de los dos pasos anteriores.</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-text">Reflexionen: ¿qué información viajó de un prompt al siguiente? ¿Qué se perdió o se inventó?</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompts Parte 2 — Correr en secuencia</div>
+      <div class="prompts-list">
+        <div class="prompt-item">
+          <div class="prompt-item-label">Prompt A — Documentar incidente</div>
+          <div class="prompt-text">Hoy a las 14:30 se detectó acceso no autorizado a un servidor
+de desarrollo. El acceso duró 12 minutos antes de ser bloqueado.
+No hubo extracción de datos confirmada.
+Generá un registro formal del incidente con: fecha/hora,
+descripción, impacto inicial, acciones tomadas y estado actual.
+Formato: tabla de registro de incidente.</div>
+        </div>
+        <div class="prompt-item">
+          <div class="prompt-item-label">Prompt B — Notificación (continuando el mismo chat)</div>
+          <div class="prompt-text">Basándote en el incidente que acabás de documentar,
+redactá el email de notificación para el área de Riesgos
+y para el CISO. Tono: formal, preciso, sin especulaciones.
+Máximo 150 palabras.</div>
+        </div>
+        <div class="prompt-item">
+          <div class="prompt-item-label">Prompt C — Ticket de seguimiento (continuando el mismo chat)</div>
+          <div class="prompt-text">Con la información del incidente y la notificación,
+generá el ticket de seguimiento con estos campos:
+Título, Prioridad, Descripción, Pasos de remediación
+pendientes (3 ítems), Responsable sugerido, Fecha límite.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-banner">
+      <div class="phase-dot phase-dot-a"></div>
+      <div class="phase-label phase-label-a">Parte 3 — Biblioteca de prompts</div>
+      <div class="phase-desc">15 min · Módulo 5</div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Tarea: armar la biblioteca del área</div>
+      <div class="scenario">
+        <p>La biblioteca de prompts es un documento vivo que el equipo va a usar como referencia. Hoy construyen la <strong>versión inicial con al menos 4 prompts del área</strong>, incluyendo los que ya usaron en los dos días del seminario más los que el grupo identifique como útiles para su trabajo real.</p>
+      </div>
+      <div class="library-card">
+        <div class="library-card-label">Plantilla — Prompts de arranque para el área</div>
+        <div class="library-item">
+          <div class="library-item-title">1. Comunicado de incidente de seguridad</div>
+          <div class="library-item-prompt">Soy del equipo de [DevOps / Info Security] de Prisma.
+Redactá un comunicado de [tipo de incidente] para [audiencia].
+El incidente ocurrió el [fecha] y [estado actual].
+Tono: [profesional / técnico]. Máx. [X] palabras.</div>
+        </div>
+        <div class="library-item">
+          <div class="library-item-title">2. Resumen ejecutivo de alerta técnica</div>
+          <div class="library-item-prompt">Traducí este log/alerta técnica a lenguaje ejecutivo:
+[pegar el log o descripción técnica]
+El resumen debe tener: qué pasó, impacto en negocio,
+acción tomada y próximos pasos. Sin tecnicismos.</div>
+        </div>
+        <div class="library-item">
+          <div class="library-item-title">3. Completar con 2 prompts propios del equipo</div>
+          <div class="library-item-prompt">→ Identificar una tarea recurrente que hacen al menos
+  1 vez por semana
+→ Escribir el prompt que la resuelva en formato reutilizable
+→ Incluir las variables entre [corchetes] para poder
+  reutilizarlo fácilmente</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Criterios de un buen resultado</div>
+      <div class="criteria">
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Automatización real:</strong> la regla de Outlook es concreta y aplicable, no genérica.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Flujo coherente:</strong> los 3 prompts encadenados producen outputs que se alimentan entre sí.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Biblioteca útil:</strong> los prompts son reutilizables con variables entre corchetes, no hechos para un solo uso.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Reflexión sobre el flujo:</strong> el grupo puede explicar qué funcionó bien y qué limitaciones encontró al encadenar prompts.</div></div>
+        <div class="criterion"><div class="criterion-icon">⚠️</div><div class="criterion-text"><strong>Atención:</strong> en el flujo encadenado, verificar que el Prompt C no inventó información que no estaba en A o B.</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Entregable para la presentación final (5 min)</div>
+      <div class="deliverable">
+        <div class="deliverable-label">El grupo presenta</div>
+        <ul>
+          <li>La regla de automatización de Outlook que diseñaron</li>
+          <li>El output del Prompt C (ticket de seguimiento generado)</li>
+          <li>Su biblioteca de prompts con al menos 4 entradas</li>
+          <li>Una reflexión: ¿qué tarea del área se llevan para automatizar desde el lunes?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /g0 -->
+
+<!-- ══ GRUPO 2 ══ Risk NP · T&O · DevOps · Issuing Digital -->
+<div class="group-view" id="g1">
+  <div class="group-header">
+    <div class="group-eyebrow"><span class="tag tag-t">Grupo 2</span><span class="tag tag-g">Customer Service · IT Issuing QA · T&O Newpay · Issuing Digital</span></div>
+    <div class="group-title">Ejercicio Integrador <em>Día 2</em></div>
+    <div class="group-members">Sanabria · Bacalao · Riscalde · Morana · Escobar</div>
+  </div>
+  <div class="context-pills">
+    <div class="pill pill-active">Módulo 4 — Automatización</div>
+    <div class="pill pill-active">Módulo 5 — Asistente personal</div>
+    <div class="pill pill-active">Biblioteca de prompts</div>
+  </div>
+  <div class="exercise">
+    <div class="ex-header">
+      <div class="ex-num">★</div>
+      <div class="ex-meta">
+        <div class="ex-label">Módulos 4 y 5 · Ejercicio integrador grupal</div>
+        <div class="ex-title">Kit de trabajo con IA para el área de Riesgos</div>
+      </div>
+      <div class="ex-timing">45 min</div>
+    </div>
+
+    <div class="phase-banner"><div class="phase-dot phase-dot-p"></div><div class="phase-label phase-label-p">Contexto</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--purpleL)">Escenario</div>
+      <div class="scenario">
+        <p>Son el equipo de <strong>Riesgos de Newpay</strong>. Gestionan alertas, preparan reportes para el comité y monitorean eventos de riesgo operacional. Hoy construyen un <strong>kit de trabajo real</strong> para esas tres tareas.</p>
+      </div>
+    </div>
+
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 1 — Automatización</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: automatizar el seguimiento de alertas de riesgo</div>
+      <div class="scenario"><p>El equipo recibe reportes de eventos de riesgo por email desde distintas áreas. Diseñen una <strong>regla de Outlook + mensaje automático en Teams</strong> que centralice estos reportes y genere un resumen diario para el responsable del área.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Usen el prompt para diseñar la regla de clasificación y el resumen automático.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Evalúen si la regla es aplicable en su entorno y qué adaptarían.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Anoten 1-2 automatizaciones adicionales útiles para el área de Riesgos.</div></div>
+      </div>
+      <div class="tools-row" style="margin-top:14px;"><div class="tool-chip">📧 Copilot en Outlook</div><div class="tool-chip">💬 Copilot en Teams</div></div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompt Parte 1</div>
+      <div class="prompts-list">
+        <div class="prompt-item">
+          <div class="prompt-item-label">Diseño de automatización para seguimiento de riesgos</div>
+          <div class="prompt-text">Soy del área de Riesgos de Newpay.
+Recibo reportes de eventos de riesgo por email desde
+distintas áreas con asuntos como "Evento de riesgo [área]"
+o "Alerta operacional [fecha]".
+Diseñá:
+1. Una regla de Outlook para clasificarlos por área emisora
+2. Una plantilla de resumen diario (lunes a viernes 8hs)
+   con: cantidad de eventos nuevos, área con más eventos,
+   el de mayor criticidad y acción pendiente.
+3. El mensaje de Teams para enviar ese resumen al canal
+   de Riesgos.</div>
+          <div class="prompt-tip"><strong>Para iterar:</strong> "Agregá que los eventos críticos generen un aviso inmediato al responsable de turno" / "Hacelo más breve, solo los urgentes"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 2 — Flujo encadenado</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: flujo de análisis de un evento de riesgo</div>
+      <div class="scenario"><p>Cuando se registra un evento de riesgo operacional, el área hace 3 cosas: <strong>caracteriza el evento, evalúa el impacto y genera la comunicación al Comité</strong>. Encadenen esos 3 pasos con prompts consecutivos.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Corran el <strong>Prompt A</strong> para caracterizar el evento.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Sin borrar el contexto, corran el <strong>Prompt B</strong> para evaluar impacto.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Corran el <strong>Prompt C</strong> para generar la comunicación al Comité.</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-text">¿Qué información viajó entre prompts? ¿Qué tuvo que agregar el equipo manualmente?</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompts Parte 2 — Correr en secuencia</div>
+      <div class="prompts-list">
+        <div class="prompt-item">
+          <div class="prompt-item-label">Prompt A — Caracterizar el evento</div>
+          <div class="prompt-text">Se detectó un error en el procesamiento nocturno del 3 de mayo
+que generó $11.400 de lucro cesante. Causa: script de
+conciliación sin manejo de excepción ante timeout.
+Caracterizá este evento según las categorías de riesgo
+operacional: tipo, causa raíz, severidad (Alta/Media/Baja)
+y si es recurrente o puntual.</div>
+        </div>
+        <div class="prompt-item">
+          <div class="prompt-item-label">Prompt B — Evaluar impacto (continuando el mismo chat)</div>
+          <div class="prompt-text">Basándote en la caracterización del evento,
+evaluá el impacto en tres dimensiones:
+1. Económico (pérdida directa y potencial recurrencia)
+2. Operacional (procesos afectados, tiempo de resolución)
+3. Reputacional (¿hay riesgo de que impacte en clientes?)
+Formato: tabla de impacto con nivel Alto/Medio/Bajo por dimensión.</div>
+        </div>
+        <div class="prompt-item">
+          <div class="prompt-item-label">Prompt C — Comunicación al Comité (continuando el mismo chat)</div>
+          <div class="prompt-text">Con la caracterización y el análisis de impacto,
+redactá el punto del orden del día para el Comité de Riesgos.
+Incluir: descripción del evento (2 líneas), impacto,
+controles implementados y recomendación de acción.
+Máximo 200 palabras. Tono formal.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-banner"><div class="phase-dot phase-dot-a"></div><div class="phase-label phase-label-a">Parte 3 — Biblioteca de prompts</div><div class="phase-desc">15 min · Módulo 5</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Tarea: biblioteca del área de Riesgos</div>
+      <div class="library-card">
+        <div class="library-card-label">Plantilla — Prompts de arranque para el área</div>
+        <div class="library-item">
+          <div class="library-item-title">1. Análisis rápido de evento de riesgo</div>
+          <div class="library-item-prompt">Analizá este evento de riesgo operacional:
+[descripción del evento]
+Indicar: categoría, severidad, causa raíz probable
+y control preventivo recomendado.</div>
+        </div>
+        <div class="library-item">
+          <div class="library-item-title">2. Punto para Comité de Riesgos</div>
+          <div class="library-item-prompt">Redactá el punto del orden del día para el Comité de Riesgos
+sobre [tema/evento]. Incluir: contexto (2 líneas),
+impacto, controles existentes y recomendación.
+Tono formal. Máx. 200 palabras.</div>
+        </div>
+        <div class="library-item">
+          <div class="library-item-title">3. Completar con 2 prompts propios del área</div>
+          <div class="library-item-prompt">→ Pensá en tareas que hacen al menos 1 vez por semana
+→ Escribí el prompt en formato reutilizable
+→ Poné las variables entre [corchetes]</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div>
+      <div class="criteria">
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Automatización aplicable:</strong> la regla de Outlook es concreta para el flujo real del área.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Flujo coherente:</strong> el Prompt C refleja información de A y B sin inventar datos.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Biblioteca reutilizable:</strong> prompts con variables en corchetes, no de un solo uso.</div></div>
+      </div>
+      <div class="deliverable" style="margin-top:12px;">
+        <div class="deliverable-label">El grupo presenta</div>
+        <ul>
+          <li>La automatización diseñada para seguimiento de alertas</li>
+          <li>El output del Prompt C (punto para el Comité)</li>
+          <li>Biblioteca de prompts con al menos 4 entradas</li>
+          <li>¿Qué tarea del área se llevan para automatizar desde el lunes?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /g1 -->
+
+<!-- ══ GRUPOS 3-9: estructura idéntica con escenarios propios ══ -->
+
+<!-- GRUPO 3 — IT Core -->
+<div class="group-view" id="g2">
+  <div class="group-header">
+    <div class="group-eyebrow"><span class="tag tag-t">Grupo 3</span><span class="tag tag-g">Issuing Business · Info Security · Issuing Ops · Customer Service</span></div>
+    <div class="group-title">Ejercicio Integrador <em>Día 2</em></div>
+    <div class="group-members">Mesa Acevedo · Torres · Andrada Florencia · Aldeco Ceballos · Ramer · ★ Mesa Acevedo</div>
+  </div>
+  <div class="context-pills"><div class="pill pill-active">Módulo 4 — Automatización</div><div class="pill pill-active">Módulo 5 — Asistente personal</div><div class="pill pill-active">Biblioteca de prompts</div></div>
+  <div class="exercise">
+    <div class="ex-header"><div class="ex-num">★</div><div class="ex-meta"><div class="ex-label">Módulos 4 y 5 · Ejercicio integrador grupal</div><div class="ex-title">Kit de trabajo con IA para el área de IT Core</div></div><div class="ex-timing">45 min</div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-p"></div><div class="phase-label phase-label-p">Contexto</div></div>
+    <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario</div><div class="scenario"><p>Son el equipo de <strong>IT Core</strong>. Gestionan incidentes técnicos, actualizaciones de infraestructura y comunicaciones a usuarios. Hoy construyen un <strong>kit de trabajo real</strong> con automatización para la gestión de incidentes y comunicaciones.</p></div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 1 — Automatización</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: automatizar la comunicación de mantenimientos</div>
+      <div class="scenario"><p>El equipo programa mantenimientos recurrentes. Diseñen un <strong>flujo automático</strong> que genere el email de aviso a usuarios y el mensaje de Teams al área cuando se programa un mantenimiento nuevo.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Usen el prompt para diseñar la plantilla de comunicación automática.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Evalúen si es aplicable y qué adaptarían.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Anoten 1-2 automatizaciones adicionales útiles para IT Core.</div></div>
+      </div>
+      <div class="tools-row" style="margin-top:14px;"><div class="tool-chip">📧 Copilot en Outlook</div><div class="tool-chip">💬 Copilot en Teams</div></div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompt Parte 1</div>
+      <div class="prompts-list"><div class="prompt-item"><div class="prompt-item-label">Automatización de comunicación de mantenimiento</div><div class="prompt-text">Soy del área de IT Core de Prisma.
+Cada vez que programamos un mantenimiento, tenemos que:
+1. Avisar a todos los usuarios afectados por email
+2. Notificar al canal de IT en Teams
+Diseñá:
+- Plantilla de email de aviso (con variables: [fecha],
+  [hora inicio], [hora fin], [sistemas afectados],
+  [contacto urgencias])
+- Mensaje corto de Teams para el canal interno
+- Una checklist de 5 puntos para verificar antes
+  de confirmar el mantenimiento.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá un recordatorio automático 24hs antes del mantenimiento" / "Incluí la plantilla para avisar cuando el mantenimiento terminó exitosamente"</div></div></div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 2 — Flujo encadenado</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: flujo de gestión de incidente IT</div>
+      <div class="scenario"><p>Ante un incidente técnico, IT hace 3 cosas: <strong>diagnostica, comunica a los usuarios y genera el post-mortem</strong>. Encadenen esos 3 pasos.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Corran el <strong>Prompt A</strong> para diagnosticar el incidente.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Corran el <strong>Prompt B</strong> para generar el comunicado a usuarios.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Corran el <strong>Prompt C</strong> para generar el post-mortem técnico.</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-text">Reflexión: ¿qué datos tuvo que agregar el equipo manualmente entre prompts?</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompts Parte 2</div>
+      <div class="prompts-list">
+        <div class="prompt-item"><div class="prompt-item-label">Prompt A — Diagnóstico del incidente</div><div class="prompt-text">El 14 de agosto a las 00:47hs se detectó alta latencia en el
+sistema core de procesamiento. Duró 54 minutos. Causa:
+error en el script de despliegue de configuración de
+balanceo de carga. Se hizo rollback y el sistema se normalizó.
+Estructurá este incidente como un diagnóstico técnico:
+síntoma, causa raíz, acción correctiva y estado final.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt B — Comunicado a usuarios (continuando)</div><div class="prompt-text">Basándote en el incidente diagnosticado,
+redactá el comunicado para los usuarios del sistema
+que explique qué pasó, qué impacto tuvieron
+y que confirme que el servicio está normalizado.
+Tono: claro, no técnico. Máx. 120 palabras.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt C — Post-mortem técnico (continuando)</div><div class="prompt-text">Con la información del incidente y el comunicado,
+generá el post-mortem técnico con estas secciones:
+Resumen ejecutivo, Cronología, Causa raíz,
+Lecciones aprendidas (3 puntos) y Acciones preventivas (3 puntos).
+Formato: documento interno para el equipo de IT.</div></div>
+      </div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-a"></div><div class="phase-label phase-label-a">Parte 3 — Biblioteca de prompts</div><div class="phase-desc">15 min · Módulo 5</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Tarea: biblioteca de IT Core</div>
+      <div class="library-card">
+        <div class="library-card-label">Plantilla — Prompts de arranque</div>
+        <div class="library-item"><div class="library-item-title">1. Comunicado de mantenimiento programado</div><div class="library-item-prompt">Redactá el email de aviso de mantenimiento programado para [fecha]
+de [hora inicio] a [hora fin]. Sistemas afectados: [lista].
+Contacto de urgencias: [contacto]. Tono claro, sin tecnicismos.</div></div>
+        <div class="library-item"><div class="library-item-title">2. Post-mortem técnico</div><div class="library-item-prompt">Generá el post-mortem del incidente [nombre/fecha].
+Incluir: causa raíz, cronología, impacto, lecciones aprendidas
+y 3 acciones preventivas. Formato documento interno.</div></div>
+        <div class="library-item"><div class="library-item-title">3. Completar con 2 prompts propios</div><div class="library-item-prompt">→ Pensá en tareas recurrentes del área
+→ Escribí en formato reutilizable con [variables]</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div>
+      <div class="criteria">
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Plantillas con variables:</strong> los prompts usan [corchetes] para ser reutilizables en cualquier mantenimiento o incidente.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Flujo coherente:</strong> el post-mortem retoma información del diagnóstico sin inventar datos.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Reflexión:</strong> el grupo puede explicar qué ganó con el encadenamiento y qué haría diferente.</div></div>
+      </div>
+      <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">El grupo presenta</div><ul><li>La plantilla de comunicación de mantenimiento</li><li>El post-mortem generado por el Prompt C</li><li>Biblioteca de prompts con al menos 4 entradas</li><li>¿Qué tarea se llevan para automatizar desde el lunes?</li></ul></div>
+    </div>
+  </div>
+</div><!-- /g2 -->
+
+<!-- GRUPO 4 — Executive / Comercial -->
+<div class="group-view" id="g3">
+  <div class="group-header">
+    <div class="group-eyebrow"><span class="tag tag-t">Grupo 4</span><span class="tag tag-g">T&O Newpay · Accounting · Issuing Ops · Process/RPA</span></div>
+    <div class="group-title">Ejercicio Integrador <em>Día 2</em></div>
+    <div class="group-members">Villanueva · Bergamaschi · Ermacora · Peralta · San Martin</div>
+  </div>
+  <div class="context-pills"><div class="pill pill-active">Módulo 4 — Automatización</div><div class="pill pill-active">Módulo 5 — Asistente personal</div><div class="pill pill-active">Biblioteca de prompts</div></div>
+  <div class="exercise">
+    <div class="ex-header"><div class="ex-num">★</div><div class="ex-meta"><div class="ex-label">Módulos 4 y 5 · Ejercicio integrador grupal</div><div class="ex-title">Kit de trabajo con IA para el área Ejecutiva y Comercial</div></div><div class="ex-timing">45 min</div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-p"></div><div class="phase-label phase-label-p">Contexto</div></div>
+    <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario</div><div class="scenario"><p>Son un grupo mixto de <strong>área ejecutiva y comercial</strong>. Gestionan clientes, presentan resultados y mantienen comunicación fluida con el directorio. Hoy construyen un <strong>kit de trabajo real</strong> para esas tareas de alto valor y alta frecuencia.</p></div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 1 — Automatización</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: automatizar el seguimiento de cuentas clave</div>
+      <div class="scenario"><p>El equipo hace seguimiento semanal de los clientes clave. Diseñen una <strong>rutina automática en Outlook + Teams</strong> que centralice las novedades de clientes y prepare el brief de la semana para el equipo comercial.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Usen el prompt para diseñar la automatización de seguimiento comercial.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Evalúen qué adaptarían para su cartera real de clientes.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Identifiquen 1-2 automatizaciones adicionales útiles para el área.</div></div>
+      </div>
+      <div class="tools-row" style="margin-top:14px;"><div class="tool-chip">📧 Copilot en Outlook</div><div class="tool-chip">💬 Copilot en Teams</div></div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompt Parte 1</div>
+      <div class="prompts-list"><div class="prompt-item"><div class="prompt-item-label">Automatización de brief comercial semanal</div><div class="prompt-text">Soy ejecutivo de cuentas en Newpay.
+Tengo 12 clientes clave a los que hago seguimiento semanal.
+Diseñá:
+1. Una regla de Outlook para clasificar emails de clientes
+   por nombre de cuenta
+2. Una plantilla de "brief semanal de cuentas" para Teams
+   con: cliente, último contacto, estado de la relación,
+   próxima acción pendiente y fecha compromiso
+3. Un reminder automático los lunes a las 9hs para
+   completar el brief antes de la reunión de equipo.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Adaptá el brief para que sea un dashboard de tabla, no texto" / "Agregá una columna de 'señal de riesgo' (verde/amarillo/rojo)"</div></div></div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 2 — Flujo encadenado</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: flujo de preparación de reunión con cliente</div>
+      <div class="scenario"><p>Antes de una reunión importante con un cliente, el área hace 3 cosas: <strong>prepara el contexto de la cuenta, genera la agenda y redacta el follow-up</strong> post reunión. Encadenen esos 3 pasos.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Corran el <strong>Prompt A</strong> para preparar el contexto de la cuenta.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Corran el <strong>Prompt B</strong> para generar la agenda de la reunión.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Corran el <strong>Prompt C</strong> para redactar el follow-up post reunión.</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-text">Reflexión: ¿cuánto tiempo ahorraría este flujo por reunión? ¿Qué datos extra necesitaría la IA?</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompts Parte 2</div>
+      <div class="prompts-list">
+        <div class="prompt-item"><div class="prompt-item-label">Prompt A — Contexto de la cuenta</div><div class="prompt-text">Tengo una reunión mañana con un cliente del sector retail
+que lleva 2 años con nosotros. Su volumen cayó un 15% en abril
+por un ajuste técnico ya corregido. Se recuperó en mayo-junio.
+Preparame un briefing de 3 puntos clave para tener en mente
+antes de la reunión: contexto de la relación, punto sensible
+a gestionar y oportunidad a explorar.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt B — Agenda de la reunión (continuando)</div><div class="prompt-text">Basándote en el contexto de la cuenta,
+generá una agenda de reunión de 45 minutos con:
+- Apertura (contexto compartido)
+- Revisión del período reciente
+- Presentación de propuesta de valor para H2
+- Cierre y compromisos
+Incluí el objetivo de cada bloque y el tiempo asignado.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt C — Follow-up post reunión (continuando)</div><div class="prompt-text">La reunión terminó. El cliente quedó conforme con la
+explicación de la caída de abril, mostró interés en el
+producto de cuotas sin interés y pidió una propuesta
+formal para la semana que viene.
+Redactá el email de follow-up: agradecimiento, resumen
+de compromisos y próximos pasos. Tono ejecutivo. Máx. 150 palabras.</div></div>
+      </div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-a"></div><div class="phase-label phase-label-a">Parte 3 — Biblioteca de prompts</div><div class="phase-desc">15 min · Módulo 5</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Tarea: biblioteca del área ejecutiva y comercial</div>
+      <div class="library-card">
+        <div class="library-card-label">Plantilla — Prompts de arranque</div>
+        <div class="library-item"><div class="library-item-title">1. Briefing pre-reunión con cliente</div><div class="library-item-prompt">Preparame el briefing para la reunión con [cliente] del sector [rubro].
+Contexto: [2-3 datos clave de la relación].
+Quiero: 3 puntos clave, 1 punto sensible a gestionar y 1 oportunidad.</div></div>
+        <div class="library-item"><div class="library-item-title">2. Email de follow-up post reunión</div><div class="library-item-prompt">Redactá el follow-up para [cliente] después de la reunión de [fecha].
+Compromisos acordados: [lista]. Próximo paso: [acción y fecha].
+Tono ejecutivo. Máx. 150 palabras.</div></div>
+        <div class="library-item"><div class="library-item-title">3. Completar con 2 prompts propios</div><div class="library-item-prompt">→ Pensá en tareas que hacen antes/después de reuniones
+→ Escribí en formato reutilizable con [variables]</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div>
+      <div class="criteria">
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Flujo comercial real:</strong> los prompts encadenados reflejan el proceso real de preparación y seguimiento de reuniones.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Follow-up accionable:</strong> el Prompt C genera un email que podría enviarse con mínima edición.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Biblioteca aplicable:</strong> prompts pensados para el día a día del área, no genéricos.</div></div>
+      </div>
+      <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">El grupo presenta</div><ul><li>El brief comercial semanal diseñado (plantilla)</li><li>El follow-up generado por el Prompt C</li><li>Biblioteca de prompts con al menos 4 entradas</li><li>¿Qué tarea se llevan para automatizar desde el lunes?</li></ul></div>
+    </div>
+  </div>
+</div><!-- /g3 -->
+
+<!-- GRUPOS 5-9 con escenarios propios -->
+
+<!-- GRUPO 5 — DevOps T&O -->
+<div class="group-view" id="g4">
+  <div class="group-header">
+    <div class="group-eyebrow"><span class="tag tag-t">Grupo 5</span><span class="tag tag-g">IT Issuing QA · Issuing Business · T&O Newpay</span></div>
+    <div class="group-title">Ejercicio Integrador <em>Día 2</em></div>
+    <div class="group-members">Gross · Alonso · Rubicini · Arron · Moya Mendoza · ★ Gross</div>
+  </div>
+  <div class="context-pills"><div class="pill pill-active">Módulo 4 — Automatización</div><div class="pill pill-active">Módulo 5 — Asistente personal</div><div class="pill pill-active">Biblioteca de prompts</div></div>
+  <div class="exercise">
+    <div class="ex-header"><div class="ex-num">★</div><div class="ex-meta"><div class="ex-label">Módulos 4 y 5 · Ejercicio integrador grupal</div><div class="ex-title">Kit de trabajo con IA para DevOps y Operaciones de Pago</div></div><div class="ex-timing">45 min</div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-p"></div><div class="phase-label phase-label-p">Contexto</div></div>
+    <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario</div><div class="scenario"><p>Son un equipo mixto de <strong>DevOps y Operaciones de Pago</strong>. Gestionan despliegues, monitorean KPIs operativos y reportan a gerencia. Hoy construyen un <strong>kit de trabajo real</strong> para esas tareas.</p></div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 1 — Automatización</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: automatizar el reporte de KPIs operativos</div>
+      <div class="scenario"><p>El equipo reporta KPIs a gerencia semanalmente. Diseñen un <strong>flujo automático</strong> que genere el reporte semanal de approval rate, disponibilidad y tasa de error con los datos que el equipo ingresa manualmente.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Usen el prompt para diseñar la plantilla de reporte automático.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Evalúen si la plantilla cubre los KPIs reales del área.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Anoten 1-2 automatizaciones adicionales para DevOps/Operaciones.</div></div>
+      </div>
+      <div class="tools-row" style="margin-top:14px;"><div class="tool-chip">📧 Copilot en Outlook</div><div class="tool-chip">💬 Copilot en Teams</div></div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompt Parte 1</div>
+      <div class="prompts-list"><div class="prompt-item"><div class="prompt-item-label">Automatización de reporte semanal de KPIs</div><div class="prompt-text">Soy del equipo de DevOps / Operaciones de Pago de Newpay.
+Cada semana reportamos a gerencia los siguientes KPIs:
+approval rate, disponibilidad del servicio, tasa de error
+técnico y tiempo de respuesta promedio.
+Diseñá:
+1. Una plantilla de email semanal de KPIs con sección de
+   "Verde / Amarillo / Rojo" por indicador
+2. Un mensaje corto de Teams para el canal de operaciones
+3. Un reminder los viernes a las 16hs para completar
+   los datos del reporte antes del envío.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá una sección de 'novedades de la semana' en 3 bullets" / "Hacelo más visual con emojis de semáforo"</div></div></div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 2 — Flujo encadenado</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: flujo de análisis de un incidente operativo</div>
+      <div class="scenario"><p>Ante un incidente operativo, el equipo hace 3 cosas: <strong>diagnostica el impacto, genera el comunicado a comercios y prepara el reporte para gerencia</strong>. Encadenen esos 3 pasos.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Corran el <strong>Prompt A</strong> para analizar el impacto.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Corran el <strong>Prompt B</strong> para el comunicado a comercios afectados.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Corran el <strong>Prompt C</strong> para el reporte ejecutivo a gerencia.</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-text">Reflexión: ¿qué nivel de detalle técnico necesita cada audiencia?</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompts Parte 2</div>
+      <div class="prompts-list">
+        <div class="prompt-item"><div class="prompt-item-label">Prompt A — Análisis de impacto del incidente</div><div class="prompt-text">El 4 de agosto de 16:38 a 17:50hs se registró degradación
+en el procesamiento de tarjetas de crédito por timeout
+en llamadas al switch externo.
+14.200 transacciones fueron rechazadas técnicamente.
+Analizá el impacto en: volumen económico estimado perdido,
+clientes afectados (tipo y cantidad estimada) y nivel
+de urgencia de comunicación externa. Sé concreto.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt B — Comunicado a comercios (continuando)</div><div class="prompt-text">Basándote en el impacto analizado,
+redactá el comunicado para los comercios afectados.
+El incidente ya fue resuelto. Incluir: qué pasó (sin tecnicismos),
+cuánto duró, si se recuperarán las transacciones y
+el contacto para consultas. Tono empático. Máx. 130 palabras.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt C — Reporte ejecutivo a gerencia (continuando)</div><div class="prompt-text">Con el análisis del incidente y el comunicado,
+generá el reporte ejecutivo para gerencia con:
+Resumen en 3 líneas, impacto en KPIs del trimestre,
+causa raíz, acción correctiva implementada
+y recomendación para evitar recurrencia.
+Máx. 200 palabras.</div></div>
+      </div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-a"></div><div class="phase-label phase-label-a">Parte 3 — Biblioteca de prompts</div><div class="phase-desc">15 min · Módulo 5</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Tarea: biblioteca de DevOps y Operaciones</div>
+      <div class="library-card">
+        <div class="library-card-label">Plantilla — Prompts de arranque</div>
+        <div class="library-item"><div class="library-item-title">1. Reporte semanal de KPIs</div><div class="library-item-prompt">Generá el reporte semanal de KPIs operativos con estos datos:
+Approval rate: [X]% | Disponibilidad: [X]% | Error técnico: [X]%
+Comparado con la semana anterior: [mejor/peor/igual].
+Formato: tabla semáforo + resumen ejecutivo de 3 líneas.</div></div>
+        <div class="library-item"><div class="library-item-title">2. Comunicado de incidente a comercios</div><div class="library-item-prompt">Redactá el comunicado del incidente [nombre/fecha] para comercios.
+Duración: [X min/hs]. Causa: [descripción simple].
+Estado actual: [resuelto/en proceso]. Tono empático. Máx. 130 palabras.</div></div>
+        <div class="library-item"><div class="library-item-title">3. Completar con 2 prompts propios</div><div class="library-item-prompt">→ Pensá en reportes o comunicaciones recurrentes del área
+→ Escribí en formato reutilizable con [variables]</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div>
+      <div class="criteria">
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Adaptación de audiencia:</strong> el comunicado a comercios y el reporte a gerencia tienen registros diferentes y ambos son adecuados.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>KPIs reales:</strong> la plantilla de reporte cubre los indicadores que el área monitorea realmente.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Biblioteca aplicable:</strong> los prompts son específicos para el área, no genéricos.</div></div>
+      </div>
+      <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">El grupo presenta</div><ul><li>Plantilla de reporte semanal de KPIs</li><li>Reporte ejecutivo generado por el Prompt C</li><li>Biblioteca de prompts con al menos 4 entradas</li><li>¿Qué tarea se llevan para automatizar desde el lunes?</li></ul></div>
+    </div>
+  </div>
+</div><!-- /g4 -->
+
+<!-- GRUPO 6 — Process/RPA -->
+<div class="group-view" id="g5">
+  <div class="group-header">
+    <div class="group-eyebrow"><span class="tag tag-t">Grupo 6</span><span class="tag tag-g">IT Core · Intl. Business · T&O Newpay</span></div>
+    <div class="group-title">Ejercicio Integrador <em>Día 2</em></div>
+    <div class="group-members">Romero · Romero Onco · Bernardo · Bava · Val Rey</div>
+  </div>
+  <div class="context-pills"><div class="pill pill-active">Módulo 4 — Automatización</div><div class="pill pill-active">Módulo 5 — Asistente personal</div><div class="pill pill-active">Biblioteca de prompts</div></div>
+  <div class="exercise">
+    <div class="ex-header"><div class="ex-num">★</div><div class="ex-meta"><div class="ex-label">Módulos 4 y 5 · Ejercicio integrador grupal</div><div class="ex-title">Kit de trabajo con IA para Operaciones y Automatización</div></div><div class="ex-timing">45 min</div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-p"></div><div class="phase-label phase-label-p">Contexto</div></div>
+    <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario</div><div class="scenario"><p>Son un equipo de <strong>Operaciones de Emisión y Transformación de Procesos</strong>. Gestionan cierres mensuales, detectan oportunidades de mejora de procesos y comunican cambios. Hoy construyen un <strong>kit de trabajo real</strong> enfocado en esas tareas.</p></div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 1 — Automatización</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: automatizar el cierre mensual</div>
+      <div class="scenario"><p>El cierre mensual es el proceso más demandante del área. Diseñen una <strong>rutina de automatización</strong> que genere el checklist de cierre, las notificaciones a las áreas dependientes y el email de confirmación cuando esté completo.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Usen el prompt para diseñar la automatización del cierre mensual.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Evalúen si el checklist cubre los pasos reales del área.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Identifiquen 1-2 automatizaciones adicionales para el área.</div></div>
+      </div>
+      <div class="tools-row" style="margin-top:14px;"><div class="tool-chip">📧 Copilot en Outlook</div><div class="tool-chip">💬 Copilot en Teams</div></div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompt Parte 1</div>
+      <div class="prompts-list"><div class="prompt-item"><div class="prompt-item-label">Automatización del cierre mensual</div><div class="prompt-text">Soy del área de Operaciones de Emisión de Prisma.
+El cierre mensual dura 2 días e involucra: conciliación
+de transacciones, validación de reportes, notificación
+a 4 áreas (Finanzas, Riesgos, Comercial y Gerencia)
+y confirmación de cierre exitoso.
+Diseñá:
+1. Un checklist de cierre en formato tabla (paso, responsable,
+   estado: pendiente/en proceso/completo)
+2. Los emails de notificación para las 4 áreas
+   (uno por área, distintos según qué les importa a cada una)
+3. El email de confirmación de cierre exitoso.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Adaptá el email de Riesgos para incluir los indicadores de control que les interesan" / "Agregá el asunto de cada email"</div></div></div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 2 — Flujo encadenado</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: flujo de análisis de un proceso candidato a automatizar</div>
+      <div class="scenario"><p>Cuando el área identifica un proceso para automatizar, hace 3 cosas: <strong>documenta el proceso actual, evalúa el potencial de automatización y prepara la propuesta para aprobación</strong>. Encadenen esos 3 pasos.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Corran el <strong>Prompt A</strong> para documentar el proceso.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Corran el <strong>Prompt B</strong> para evaluar el potencial.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Corran el <strong>Prompt C</strong> para redactar la propuesta.</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-text">Reflexión: ¿qué información que solo tiene el equipo necesitó agregar manualmente?</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompts Parte 2</div>
+      <div class="prompts-list">
+        <div class="prompt-item"><div class="prompt-item-label">Prompt A — Documentar el proceso actual</div><div class="prompt-text">El proceso de procesamiento de chargebacks es manual:
+recibimos solicitudes por email, leemos el PDF adjunto,
+clasificamos por tipo (6 categorías), cargamos datos en el sistema
+y asignamos al analista. Demanda 3 horas diarias.
+Documentá este proceso como un diagrama de pasos en texto:
+input → proceso → output, con actores y sistemas involucrados.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt B — Evaluar potencial de automatización (continuando)</div><div class="prompt-text">Basándote en el proceso documentado,
+evaluá su potencial de automatización con RPA.
+Indicar: % estimado automatizable, pasos que requieren
+criterio humano, riesgos de implementación y beneficio
+estimado en horas/mes. Sé concreto y realista.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt C — Propuesta para aprobación (continuando)</div><div class="prompt-text">Con la documentación y el análisis,
+redactá la propuesta ejecutiva de automatización para
+presentar al Comité de Transformación Digital.
+Incluir: descripción del proceso, beneficio esperado,
+inversión estimada, ROI y recomendación de prioridad.
+Máx. 250 palabras. Tono ejecutivo.</div></div>
+      </div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-a"></div><div class="phase-label phase-label-a">Parte 3 — Biblioteca de prompts</div><div class="phase-desc">15 min · Módulo 5</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Tarea: biblioteca de Operaciones y Procesos</div>
+      <div class="library-card">
+        <div class="library-card-label">Plantilla — Prompts de arranque</div>
+        <div class="library-item"><div class="library-item-title">1. Documentación de proceso para automatización</div><div class="library-item-prompt">Documentá el proceso de [nombre del proceso].
+Input: [qué entra]. Pasos: [descripción]. Output: [qué sale].
+Actores: [quiénes participan]. Sistemas: [qué sistemas usa].
+Tiempo actual: [X horas/mes]. Formato: diagrama de pasos.</div></div>
+        <div class="library-item"><div class="library-item-title">2. Propuesta ejecutiva de automatización</div><div class="library-item-prompt">Redactá la propuesta ejecutiva para automatizar [proceso].
+Beneficio: [X horas/mes]. Inversión estimada: $[X].
+ROI: [X meses]. Prioridad: [alta/media]. Tono ejecutivo. Máx. 250 palabras.</div></div>
+        <div class="library-item"><div class="library-item-title">3. Completar con 2 prompts propios</div><div class="library-item-prompt">→ Pensá en comunicaciones o análisis recurrentes del área
+→ Escribí en formato reutilizable con [variables]</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div>
+      <div class="criteria">
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Propuesta ejecutiva real:</strong> el Prompt C genera algo que podría presentarse al comité con poca edición.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Checklist útil:</strong> la automatización del cierre refleja los pasos reales del proceso del área.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Reflexión sobre límites:</strong> el grupo identifica qué información solo puede dar el equipo y qué puede delegar a la IA.</div></div>
+      </div>
+      <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">El grupo presenta</div><ul><li>El checklist de cierre mensual generado</li><li>La propuesta ejecutiva de automatización (Prompt C)</li><li>Biblioteca de prompts con al menos 4 entradas</li><li>¿Qué tarea se llevan para automatizar desde el lunes?</li></ul></div>
+    </div>
+  </div>
+</div><!-- /g5 -->
+
+<!-- GRUPO 7 — People -->
+<div class="group-view" id="g6">
+  <div class="group-header">
+    <div class="group-eyebrow"><span class="tag tag-t">Grupo 7</span><span class="tag tag-g">Risk NP · Info Security · Processing · IT Core</span></div>
+    <div class="group-title">Ejercicio Integrador <em>Día 2</em></div>
+    <div class="group-members">Segal · Ponce · Chmenia · Aguirre · Neira · ★ Segal</div>
+  </div>
+  <div class="context-pills"><div class="pill pill-active">Módulo 4 — Automatización</div><div class="pill pill-active">Módulo 5 — Asistente personal</div><div class="pill pill-active">Biblioteca de prompts</div></div>
+  <div class="exercise">
+    <div class="ex-header"><div class="ex-num">★</div><div class="ex-meta"><div class="ex-label">Módulos 4 y 5 · Ejercicio integrador grupal</div><div class="ex-title">Kit de trabajo con IA para el área de People</div></div><div class="ex-timing">45 min</div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-p"></div><div class="phase-label phase-label-p">Contexto</div></div>
+    <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario</div><div class="scenario"><p>Son el equipo de <strong>People</strong>. Gestionan comunicaciones masivas, procesos de onboarding, encuestas y coordinación con líderes. Hoy construyen un <strong>kit de trabajo real</strong> para esas tareas de alto volumen y alta sensibilidad.</p></div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 1 — Automatización</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: automatizar las comunicaciones de onboarding</div>
+      <div class="scenario"><p>El onboarding de un nuevo empleado involucra 5-6 comunicaciones en las primeras 2 semanas. Diseñen un <strong>flujo automático</strong> que genere esas comunicaciones con plantillas reutilizables.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Usen el prompt para diseñar el flujo de comunicaciones de onboarding.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Evalúen si las plantillas reflejan el proceso real del área.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Anoten 1-2 automatizaciones adicionales útiles para People.</div></div>
+      </div>
+      <div class="tools-row" style="margin-top:14px;"><div class="tool-chip">📧 Copilot en Outlook</div><div class="tool-chip">💬 Copilot en Teams</div></div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompt Parte 1</div>
+      <div class="prompts-list"><div class="prompt-item"><div class="prompt-item-label">Flujo de comunicaciones de onboarding</div><div class="prompt-text">Soy del área de People de Prisma Medios de Pago.
+Cuando ingresa un nuevo empleado, enviamos 5 comunicaciones:
+1. Email de bienvenida (día 1)
+2. Recordatorio de documentación pendiente (día 3)
+3. Mensaje de Teams presentándolo al equipo (día 1)
+4. Check-in de primera semana (día 5)
+5. Encuesta de experiencia de primer mes (día 30)
+Generá las plantillas para las 5 comunicaciones.
+Tono: cálido, claro y profesional.
+Usá [nombre], [área], [líder directo] como variables.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Hacé el email de bienvenida más personalizado con una línea que mencione el rol específico" / "Agregá el mensaje para el líder directo recordándole qué hacer en el primer día"</div></div></div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 2 — Flujo encadenado</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: flujo de respuesta a resultados de clima</div>
+      <div class="scenario"><p>Cuando salen los resultados de la encuesta de clima, People hace 3 cosas: <strong>interpreta los resultados, prepara el mensaje para líderes y genera el plan de acción</strong>. Encadenen esos 3 pasos con los datos reales del Día 1.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Corran el <strong>Prompt A</strong> para interpretar los resultados clave.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Corran el <strong>Prompt B</strong> para el mensaje a los líderes.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Corran el <strong>Prompt C</strong> para el plan de acción.</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-text">Reflexión: ¿qué parte requirió más criterio humano del equipo de People?</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompts Parte 2</div>
+      <div class="prompts-list">
+        <div class="prompt-item"><div class="prompt-item-label">Prompt A — Interpretar resultados de clima</div><div class="prompt-text">Los resultados de la encuesta de clima 2024 muestran:
+eNPS: 42 puntos (+7 vs año anterior).
+Dimensión más alta: Colaboración (8,1/10).
+Dimensión más baja: Reconocimiento (5,9/10, bajo benchmark).
+Mayor retroceso: Equilibrio vida-trabajo (-0,2 en Tecnología).
+Identificá los 3 mensajes clave que comunicar y la
+narrativa que conecta lo positivo con lo que hay que mejorar.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt B — Mensaje para líderes de equipo (continuando)</div><div class="prompt-text">Basándote en los resultados y los mensajes clave,
+redactá el email para todos los líderes de equipo
+compartiendo los resultados de su área y lo que
+se espera de ellos en las próximas semanas.
+Tono: constructivo, sin alarmar. Máx. 200 palabras.
+Incluí 3 acciones concretas que cada líder puede tomar.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt C — Plan de acción de People (continuando)</div><div class="prompt-text">Con los resultados y el mensaje a líderes,
+generá el plan de acción de People para los próximos 6 meses.
+Estructurarlo en: Corto plazo (Q3-Q4 2024) y Mediano plazo (H1 2025).
+Cada acción debe tener: nombre, objetivo, responsable,
+fecha compromiso y métrica de éxito.
+Mínimo 6 acciones en total.</div></div>
+      </div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-a"></div><div class="phase-label phase-label-a">Parte 3 — Biblioteca de prompts</div><div class="phase-desc">15 min · Módulo 5</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Tarea: biblioteca del área de People</div>
+      <div class="library-card">
+        <div class="library-card-label">Plantilla — Prompts de arranque</div>
+        <div class="library-item"><div class="library-item-title">1. Comunicado masivo de política o cambio</div><div class="library-item-prompt">Redactá el comunicado para toda la organización sobre [política/cambio].
+Contexto: [descripción]. Vigencia: [fecha]. Excepciones: [si aplica].
+Canal de consultas: [contacto]. Tono inclusivo y claro. Máx. 220 palabras.</div></div>
+        <div class="library-item"><div class="library-item-title">2. Plan de acción post-encuesta de clima</div><div class="library-item-prompt">Generá un plan de acción para People en base a estos resultados:
+Fortaleza: [dimensión + puntaje]. Área de mejora: [dimensión + puntaje].
+Incluir 3 acciones corto plazo y 3 mediano plazo,
+con responsable, fecha y métrica de éxito.</div></div>
+        <div class="library-item"><div class="library-item-title">3. Completar con 2 prompts propios</div><div class="library-item-prompt">→ Pensá en comunicaciones o procesos recurrentes de People
+→ Escribí en formato reutilizable con [variables]</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div>
+      <div class="criteria">
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Tono cuidado:</strong> las comunicaciones de People son empáticas y no generan alarma innecesaria.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Plan de acción concreto:</strong> el Prompt C genera acciones con dueño y fecha, no generalidades.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Variables en plantillas:</strong> los prompts de onboarding son reutilizables para cualquier nueva incorporación.</div></div>
+      </div>
+      <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">El grupo presenta</div><ul><li>Las plantillas de onboarding (al menos 3 de las 5)</li><li>El plan de acción de clima generado por el Prompt C</li><li>Biblioteca de prompts con al menos 4 entradas</li><li>¿Qué tarea de People se llevan para automatizar desde el lunes?</li></ul></div>
+    </div>
+  </div>
+</div><!-- /g6 -->
+
+<!-- GRUPO 8 — Servers/DevOps -->
+<div class="group-view" id="g7">
+  <div class="group-header">
+    <div class="group-eyebrow"><span class="tag tag-t">Grupo 8</span><span class="tag tag-g">IT Core · T&O Newpay · Business NP</span></div>
+    <div class="group-title">Ejercicio Integrador <em>Día 2</em></div>
+    <div class="group-members">Salon · Coronel · Fernandez Quijada · Yarade · Del Rivero Vargas</div>
+  </div>
+  <div class="context-pills"><div class="pill pill-active">Módulo 4 — Automatización</div><div class="pill pill-active">Módulo 5 — Asistente personal</div><div class="pill pill-active">Biblioteca de prompts</div></div>
+  <div class="exercise">
+    <div class="ex-header"><div class="ex-num">★</div><div class="ex-meta"><div class="ex-label">Módulos 4 y 5 · Ejercicio integrador grupal</div><div class="ex-title">Kit de trabajo con IA para Infraestructura y Riesgo Operacional</div></div><div class="ex-timing">45 min</div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-p"></div><div class="phase-label phase-label-p">Contexto</div></div>
+    <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario</div><div class="scenario"><p>Son un equipo mixto de <strong>Infraestructura, Operaciones y Riesgo</strong>. Monitorean capacidad, gestionan alertas preventivas y reportan al comité. Hoy construyen un <strong>kit de trabajo real</strong> para esas tareas.</p></div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 1 — Automatización</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: automatizar el monitoreo de capacidad</div>
+      <div class="scenario"><p>El equipo monitorea semanalmente el estado de capacidad de los servidores. Diseñen una <strong>rutina automática</strong> que genere el reporte de capacidad y las alertas preventivas cuando un recurso supera el umbral de atención.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Usen el prompt para diseñar la automatización del monitoreo de capacidad.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Evalúen si la plantilla cubre los recursos que monitorean realmente.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Anoten 1-2 automatizaciones adicionales para el área.</div></div>
+      </div>
+      <div class="tools-row" style="margin-top:14px;"><div class="tool-chip">📧 Copilot en Outlook</div><div class="tool-chip">💬 Copilot en Teams</div></div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompt Parte 1</div>
+      <div class="prompts-list"><div class="prompt-item"><div class="prompt-item-label">Automatización de monitoreo de capacidad</div><div class="prompt-text">Soy del equipo de Infraestructura de Prisma Medios de Pago.
+Monitoreo semanalmente estos recursos con sus umbrales de alerta:
+- Almacenamiento NAS: alerta > 85%, crítico > 95%
+- CPU servidores batch: alerta > 80%, crítico > 90%
+- Ancho de banda red: alerta > 75%, crítico > 85%
+Diseñá:
+1. Una plantilla de reporte semanal con semáforo por recurso
+2. El email de alerta preventiva a gerencia cuando se supera
+   el umbral (con el recurso afectado, % actual y tiempo
+   estimado al umbral crítico)
+3. Un reminder automático los lunes para completar
+   el reporte antes del Comité de Tecnología.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá la columna de 'acción recomendada' según el nivel de alerta" / "Hacé el email de alerta más urgente para el nivel crítico"</div></div></div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 2 — Flujo encadenado</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: flujo de escalamiento de alerta de capacidad</div>
+      <div class="scenario"><p>Cuando un recurso supera el umbral de alerta, el equipo hace 3 cosas: <strong>evalúa el riesgo, arma la propuesta de solución y eleva a gerencia para aprobación</strong>. Encadenen esos 3 pasos con el caso real del servidor al 90%.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Corran el <strong>Prompt A</strong> para evaluar el riesgo.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Corran el <strong>Prompt B</strong> para armar las opciones de solución.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Corran el <strong>Prompt C</strong> para el email de escalamiento a gerencia.</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-text">Reflexión: ¿la IA entendió la urgencia correctamente? ¿Qué ajustarían?</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompts Parte 2</div>
+      <div class="prompts-list">
+        <div class="prompt-item"><div class="prompt-item-label">Prompt A — Evaluación del riesgo</div><div class="prompt-text">El servidor NAS de archivos históricos está al 90% de su
+capacidad (45 TB de 50 TB). Crece a 1,2 TB por mes.
+Sin acción, alcanzará el 95% en 4 semanas y los backups
+automáticos comenzarán a fallar.
+Evaluá el riesgo en términos de negocio: impacto operacional,
+regulatorio y reputacional si no se actúa. Sé concreto.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt B — Opciones de solución (continuando)</div><div class="prompt-text">Basándote en la evaluación del riesgo,
+presentá 2 opciones de solución con pros, contras,
+costo estimado y tiempo de implementación:
+Opción A: expansión in-house (10 TB adicionales)
+Opción B: archivado automático en Azure Blob Storage
+(datos con más de 36 meses). Formato: tabla comparativa.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt C — Email de escalamiento a gerencia (continuando)</div><div class="prompt-text">Con la evaluación del riesgo y las opciones de solución,
+redactá el email de escalamiento a la gerencia de tecnología
+solicitando aprobación para ejecutar una de las opciones.
+Urgencia: alta. Tono: técnico pero accesible para no-especialistas.
+Incluir: el riesgo, las 2 opciones resumidas y la recomendación.
+Máx. 200 palabras.</div></div>
+      </div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-a"></div><div class="phase-label phase-label-a">Parte 3 — Biblioteca de prompts</div><div class="phase-desc">15 min · Módulo 5</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Tarea: biblioteca de Infraestructura y Riesgo</div>
+      <div class="library-card">
+        <div class="library-card-label">Plantilla — Prompts de arranque</div>
+        <div class="library-item"><div class="library-item-title">1. Alerta preventiva de capacidad</div><div class="library-item-prompt">Redactá el email de alerta preventiva para gerencia.
+Recurso: [nombre]. Nivel actual: [X]%. Umbral crítico: [Y]%.
+Tiempo estimado al umbral: [Z semanas/meses].
+Acción recomendada: [descripción]. Urgencia: [alta/media].</div></div>
+        <div class="library-item"><div class="library-item-title">2. Propuesta de solución técnica para no-técnicos</div><div class="library-item-prompt">Traducí esta propuesta técnica para gerencia:
+[descripción técnica de la solución].
+Explicar: qué problema resuelve, costo, tiempo y riesgo
+si no se implementa. Sin tecnicismos. Máx. 150 palabras.</div></div>
+        <div class="library-item"><div class="library-item-title">3. Completar con 2 prompts propios</div><div class="library-item-prompt">→ Pensá en reportes o escalamientos recurrentes del área
+→ Escribí en formato reutilizable con [variables]</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div>
+      <div class="criteria">
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Urgencia calibrada:</strong> el email de escalamiento transmite la urgencia sin generar pánico.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Opciones concretas:</strong> la tabla comparativa del Prompt B permite a gerencia decidir sin necesitar conocimiento técnico.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Biblioteca aplicable:</strong> los prompts de alerta y propuesta son reutilizables para cualquier recurso.</div></div>
+      </div>
+      <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">El grupo presenta</div><ul><li>La plantilla de reporte semanal de capacidad</li><li>El email de escalamiento generado por el Prompt C</li><li>Biblioteca de prompts con al menos 4 entradas</li><li>¿Qué tarea se llevan para automatizar desde el lunes?</li></ul></div>
+    </div>
+  </div>
+</div><!-- /g7 -->
+
+<!-- GRUPO 9 — Info Security II -->
+<div class="group-view" id="g8">
+  <div class="group-header">
+    <div class="group-eyebrow"><span class="tag tag-t">Grupo 9</span><span class="tag tag-g">T&O Newpay · Issuing Digital · IT Issuing QA · Issuing Ops</span></div>
+    <div class="group-title">Ejercicio Integrador <em>Día 2</em></div>
+    <div class="group-members">Ausqui · Stimberg · Marulis · Vazquez Vera</div>
+  </div>
+  <div class="context-pills"><div class="pill pill-active">Módulo 4 — Automatización</div><div class="pill pill-active">Módulo 5 — Asistente personal</div><div class="pill pill-active">Biblioteca de prompts</div></div>
+  <div class="exercise">
+    <div class="ex-header"><div class="ex-num">★</div><div class="ex-meta"><div class="ex-label">Módulos 4 y 5 · Ejercicio integrador grupal</div><div class="ex-title">Kit de trabajo con IA para Info Security y Cumplimiento</div></div><div class="ex-timing">45 min</div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-p"></div><div class="phase-label phase-label-p">Contexto</div></div>
+    <div class="ex-section"><div class="ex-section-label" style="color:var(--purpleL)">Escenario</div><div class="scenario"><p>Son el equipo de <strong>Information Security e T&O</strong>. Gestionan vulnerabilidades, comunican riesgos a la organización y reportan al Comité de Auditoría. Hoy construyen un <strong>kit de trabajo real</strong> para esas tareas críticas.</p></div></div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 1 — Automatización</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: automatizar el seguimiento de remediación de vulnerabilidades</div>
+      <div class="scenario"><p>El equipo hace seguimiento de las vulnerabilidades abiertas y sus fechas compromiso. Diseñen un <strong>flujo automático</strong> que genere recordatorios de remediación y el resumen semanal de estado para el CISO.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Usen el prompt para diseñar la automatización de seguimiento.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Evalúen si cubre el proceso real del área.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Anoten 1-2 automatizaciones adicionales útiles para el área.</div></div>
+      </div>
+      <div class="tools-row" style="margin-top:14px;"><div class="tool-chip">📧 Copilot en Outlook</div><div class="tool-chip">💬 Copilot en Teams</div></div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompt Parte 1</div>
+      <div class="prompts-list"><div class="prompt-item"><div class="prompt-item-label">Automatización de seguimiento de vulnerabilidades</div><div class="prompt-text">Soy del equipo de Info Security de Prisma.
+Tenemos 77 vulnerabilidades abiertas con fechas compromiso.
+Las críticas vencen en noviembre, las altas en diciembre.
+Diseñá:
+1. Una regla de recordatorio a los responsables de remediación
+   a 30, 14 y 7 días antes del vencimiento (email automático)
+2. Una plantilla de resumen semanal para el CISO con:
+   vulnerabilidades vencidas, próximas a vencer (7 días),
+   resueltas esta semana y % de avance total
+3. El mensaje de Teams para el canal de Seguridad
+   cuando una vulnerabilidad crítica es resuelta.</div><div class="prompt-tip"><strong>Para iterar:</strong> "Agregá que las vulnerabilidades vencidas generen una alerta de nivel rojo" / "Hacé el resumen del CISO más ejecutivo con menos detalle técnico"</div></div></div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-t"></div><div class="phase-label phase-label-t">Parte 2 — Flujo encadenado</div><div class="phase-desc">15 min · Módulo 4</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--teal)">Tarea: flujo de comunicación de vulnerabilidad crítica</div>
+      <div class="scenario"><p>Cuando se detecta una vulnerabilidad crítica nueva, el equipo hace 3 cosas: <strong>evalúa el riesgo real, genera la comunicación interna y prepara el punto para el Comité de Auditoría</strong>. Encadenen esos 3 pasos.</p></div>
+      <div class="steps" style="margin-top:12px;">
+        <div class="step"><div class="step-n">1</div><div class="step-text">Corran el <strong>Prompt A</strong> para evaluar el riesgo de la vulnerabilidad.</div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-text">Corran el <strong>Prompt B</strong> para la comunicación interna.</div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-text">Corran el <strong>Prompt C</strong> para el punto del Comité de Auditoría.</div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-text">Reflexión: ¿qué nivel de detalle técnico es adecuado para cada audiencia?</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--green)">Prompts Parte 2</div>
+      <div class="prompts-list">
+        <div class="prompt-item"><div class="prompt-item-label">Prompt A — Evaluación del riesgo</div><div class="prompt-text">Se detectó que el endpoint de autenticación del portal
+de autogestión no tiene rate limiting: acepta intentos
+ilimitados de login, exponiendo el sistema a ataques
+de fuerza bruta y credential stuffing.
+La explotación es posible desde internet, sin autenticación previa.
+Evaluá el riesgo: probabilidad, impacto potencial
+(operacional, reputacional, regulatorio) y urgencia
+de remediación. Nivel de criticidad con justificación.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt B — Comunicación interna (continuando)</div><div class="prompt-text">Basándote en la evaluación del riesgo,
+redactá el email interno para las áreas afectadas
+(IT, Desarrollo, Operaciones) comunicando la vulnerabilidad,
+el riesgo asociado y las medidas temporales mientras
+se desarrolla el fix definitivo.
+Sin revelar detalles técnicos que aumenten el riesgo.
+Tono: urgente pero controlado. Máx. 180 palabras.</div></div>
+        <div class="prompt-item"><div class="prompt-item-label">Prompt C — Punto para el Comité de Auditoría (continuando)</div><div class="prompt-text">Con la evaluación y la comunicación interna,
+prepará el punto del orden del día para el Comité de Auditoría.
+Incluir: descripción del hallazgo (no técnica), exposición
+al riesgo, acciones tomadas hasta la fecha, plan de remediación
+con fecha compromiso y métricas de seguimiento.
+Tono formal. Máx. 250 palabras.</div></div>
+      </div>
+    </div>
+    <div class="phase-banner"><div class="phase-dot phase-dot-a"></div><div class="phase-label phase-label-a">Parte 3 — Biblioteca de prompts</div><div class="phase-desc">15 min · Módulo 5</div></div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Tarea: biblioteca de Info Security</div>
+      <div class="library-card">
+        <div class="library-card-label">Plantilla — Prompts de arranque</div>
+        <div class="library-item"><div class="library-item-title">1. Evaluación de riesgo de vulnerabilidad</div><div class="library-item-prompt">Evaluá el riesgo de esta vulnerabilidad: [descripción técnica].
+Accesible desde: [interna/externa/ambas]. Requiere auth previa: [sí/no].
+Indicar: probabilidad, impacto (operacional/reputacional/regulatorio),
+urgencia y criticidad con justificación.</div></div>
+        <div class="library-item"><div class="library-item-title">2. Punto para Comité de Auditoría</div><div class="library-item-prompt">Prepará el punto del Comité de Auditoría sobre [vulnerabilidad/hallazgo].
+Descripción no técnica, exposición al riesgo, acciones tomadas,
+plan de remediación con fecha y métricas de seguimiento.
+Tono formal. Máx. 250 palabras.</div></div>
+        <div class="library-item"><div class="library-item-title">3. Completar con 2 prompts propios</div><div class="library-item-prompt">→ Pensá en comunicaciones o reportes recurrentes del área
+→ Escribí en formato reutilizable con [variables]</div></div>
+      </div>
+    </div>
+    <div class="ex-section">
+      <div class="ex-section-label" style="color:var(--amber)">Criterios y entregable</div>
+      <div class="criteria">
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Adaptación de audiencia:</strong> la comunicación interna y el punto del Comité tienen registros distintos y ambos son correctos para su audiencia.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Seguridad en la comunicación:</strong> el Prompt B no revela detalles técnicos que aumenten la exposición al riesgo.</div></div>
+        <div class="criterion"><div class="criterion-icon">✅</div><div class="criterion-text"><strong>Flujo coherente:</strong> el Prompt C retoma la evaluación del riesgo sin agregar información que no estaba en A o B.</div></div>
+      </div>
+      <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">El grupo presenta</div><ul><li>La automatización de seguimiento de vulnerabilidades</li><li>El punto del Comité de Auditoría generado por el Prompt C</li><li>Biblioteca de prompts con al menos 4 entradas</li><li>¿Qué tarea se llevan para automatizar desde el lunes?</li></ul></div>
+    </div>
+  </div>
+</div><!-- /g8 -->
+
+</div><!-- /main -->
+</div>
+
+<div id="panel-agente" class="tab-panel">
+<div class="main" style="padding-top:32px;">
+  <div class="agent-section-header">
+    <div class="agent-section-eyebrow">Últimos 30 minutos · Construcción grupal</div>
+    <div class="agent-section-title">Armá el <em>agente Copilot</em> de tu área</div>
+    <div class="agent-section-sub">Seleccioná tu grupo. El referente Copilot lidera. Al terminar muestran el agente con un mensaje de prueba real.</div>
+  </div>
+  <div class="section-header">
+    <div class="section-eyebrow">Construcción grupal · 15 minutos</div>
+    <div class="section-title">Armá el <em>agente</em> de tu área</div>
+    <div class="section-sub">Seleccioná tu grupo. El referente Copilot lidera la construcción. Al terminar, muestran el agente con un mensaje de prueba real.</div>
+  </div>
+
+  <div class="selector-title">Seleccioná tu grupo</div>
+  <div class="group-btns">
+    <button class="g-btn" onclick="showAgentGroup(0)">Grupo 1</button>
+    <button class="g-btn" onclick="showAgentGroup(1)">Grupo 2</button>
+    <button class="g-btn" onclick="showAgentGroup(2)">Grupo 3</button>
+    <button class="g-btn" onclick="showAgentGroup(3)">Grupo 4</button>
+    <button class="g-btn" onclick="showAgentGroup(4)">Grupo 5</button>
+    <button class="g-btn" onclick="showAgentGroup(5)">Grupo 6</button>
+    <button class="g-btn" onclick="showAgentGroup(6)">Grupo 7</button>
+    <button class="g-btn" onclick="showAgentGroup(7)">Grupo 8</button>
+    <button class="g-btn" onclick="showAgentGroup(8)">Grupo 9</button>
+  </div>
+
+  <div id="agent-empty2" class="empty">👆 Seleccioná tu grupo para ver la consigna del agente</div>
+
+  <!-- Macro para generar cada grupo -->
+
+  <!-- G1 — DevOps / Info Security -->
+  <div class="group-view" id="agv0">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon card-icon-p">🤖</div>
+        <div class="card-meta">
+          <div class="card-label">Grupo 1 · DevOps · Info Security · T&O Newpay</div>
+          <div class="card-title">Agente: Asistente de Alertas de Seguridad</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info"><div class="alert-icon">🎯</div><div><strong>Para qué sirve:</strong> responde consultas sobre clasificación de alertas de seguridad, primeros pasos ante incidentes y quién notificar según la severidad. Lo usa el equipo de guardia cuando llega una alerta.</div></div>
+        <div style="margin-top:16px;">
+          <div class="field-grid">
+            <div class="field"><div class="field-label">Nombre del agente</div><div class="field-value">Asistente de Alertas — DevOps & Security</div></div>
+            <div class="field"><div class="field-label">Descripción</div><div class="field-value">Ayuda al equipo de DevOps e Information Security a clasificar alertas, definir primeros pasos y redactar comunicaciones ante incidentes técnicos y de seguridad.</div></div>
+          </div>
+          <div class="code-block" style="margin-top:12px;">
+            <div class="code-label">Instrucciones del sistema — pegar en el campo de configuración</div>
+            <div class="code-text">Sos el Asistente de Alertas del equipo de DevOps e Information
+Security de Prisma Medios de Pago.
+
+Tu función es ayudar al equipo de guardia a responder
+rápido y bien cuando llega una alerta.
+
+Cuando te describan una alerta o incidente, siempre:
+1. Clasificá la severidad: Crítico / Alto / Medio / Bajo
+   con criterio claro (impacto en producción o en datos)
+2. Indicá los primeros 3 pasos concretos a seguir
+3. Decí a quién notificar (CISO, líder técnico, área afectada)
+   y en qué plazo máximo
+4. Ofrecé redactar el comunicado interno si lo necesitan
+
+Para incidentes Críticos, siempre empezá con:
+"🔴 CRÍTICO — activar protocolo de respuesta inmediata."
+
+Usá lenguaje técnico claro. Nunca especulés sobre causas
+sin evidencia. Si falta información para clasificar,
+preguntá exactamente qué necesitás saber antes de responder.
+
+Solo respondés sobre alertas, incidentes de seguridad
+y operaciones de infraestructura. Para otros temas,
+indicá el canal correcto.</div>
+            <div class="code-tip"><strong>Mensaje de prueba:</strong> "Tenemos latencia inusual en la API de autorizaciones desde hace 20 minutos. El tiempo de respuesta subió de 140ms a 890ms. No hay caída total."</div>
+          </div>
+        </div>
+        <div class="deliverable" style="margin-top:12px;">
+          <div class="deliverable-label">Al terminar (puesta en común)</div>
+          <ul>
+            <li>Mostrar el agente respondiendo el mensaje de prueba</li>
+            <li>Explicar en 1 minuto qué cambiarían si lo usaran desde el lunes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div><!-- /ag0 -->
+
+  <!-- G2 — Risk NP -->
+  <div class="group-view" id="agv1">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon card-icon-p">🤖</div>
+        <div class="card-meta">
+          <div class="card-label">Grupo 2 · Risk NP · T&O Newpay · Issuing Digital</div>
+          <div class="card-title">Agente: Asistente de Gestión de Riesgos</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info"><div class="alert-icon">🎯</div><div><strong>Para qué sirve:</strong> ayuda al equipo a clasificar eventos de riesgo operacional, redactar el reporte para el Comité y sugerir controles de mitigación según el tipo de riesgo.</div></div>
+        <div style="margin-top:16px;">
+          <div class="field-grid">
+            <div class="field"><div class="field-label">Nombre del agente</div><div class="field-value">Asistente de Riesgos — Newpay</div></div>
+            <div class="field"><div class="field-label">Descripción</div><div class="field-value">Asiste al área de Riesgos de Newpay en la clasificación de eventos operacionales, redacción de reportes para el Comité y sugerencia de controles de mitigación.</div></div>
+          </div>
+          <div class="code-block" style="margin-top:12px;">
+            <div class="code-label">Instrucciones del sistema</div>
+            <div class="code-text">Sos el Asistente de Gestión de Riesgos de Newpay,
+parte de Prisma Medios de Pago.
+
+Tu función es ayudar al área de Riesgos a trabajar
+más rápido y con mayor consistencia.
+
+Cuando te describan un evento de riesgo, siempre:
+1. Clasificá la categoría: Fraude externo / Falla de sistemas /
+   Error en procesos / Riesgo de terceros / Cumplimiento
+2. Evaluá la severidad: Crítico / Alto / Medio / Bajo
+   con justificación basada en impacto económico y operacional
+3. Sugerí los controles de mitigación más relevantes (2-3)
+4. Ofrecé redactar el punto del orden del día para el Comité
+   de Riesgos si lo necesitan
+
+Cuando redactés para el Comité, usá siempre:
+tono formal, máximo 200 palabras, sin tecnicismos,
+con sección de recomendación al final.
+
+Solo respondés sobre riesgos operacionales, eventos
+de pérdida y cumplimiento regulatorio de un PSP.
+Para otros temas, redirigí al área correspondiente.</div>
+            <div class="code-tip"><strong>Mensaje de prueba:</strong> "Se detectó que un proveedor crítico de procesamiento no renovó su contrato SLA desde 2021. No tenemos proveedor alternativo contratado."</div>
+          </div>
+        </div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al terminar</div><ul><li>Mostrar el agente respondiendo el mensaje de prueba</li><li>1 minuto: ¿qué cambiarían si lo usaran desde el lunes?</li></ul></div>
+      </div>
+    </div>
+  </div><!-- /ag1 -->
+
+  <!-- G3 — IT Core -->
+  <div class="group-view" id="agv2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon card-icon-p">🤖</div>
+        <div class="card-meta">
+          <div class="card-label">Grupo 3 · IT Core · T&O Newpay · Issuing Ops</div>
+          <div class="card-title">Agente: Asistente de Soporte IT</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info"><div class="alert-icon">🎯</div><div><strong>Para qué sirve:</strong> asiste al equipo de IT para diagnosticar incidentes técnicos, generar comunicados a usuarios y redactar el post-mortem con la estructura estándar del área.</div></div>
+        <div style="margin-top:16px;">
+          <div class="field-grid">
+            <div class="field"><div class="field-label">Nombre del agente</div><div class="field-value">Asistente IT Core — Prisma</div></div>
+            <div class="field"><div class="field-label">Descripción</div><div class="field-value">Ayuda al equipo de IT Core a gestionar incidentes técnicos: diagnóstico, comunicación a usuarios y generación de post-mortems con formato estándar.</div></div>
+          </div>
+          <div class="code-block" style="margin-top:12px;">
+            <div class="code-label">Instrucciones del sistema</div>
+            <div class="code-text">Sos el Asistente de IT Core de Prisma Medios de Pago.
+
+Tu función es ayudar al equipo técnico a gestionar
+incidentes de manera rápida y documentada.
+
+Cuando te describan un incidente técnico, siempre:
+1. Estructurá el diagnóstico: síntoma, causa probable,
+   impacto en sistemas y usuarios afectados
+2. Sugerí los primeros 3 pasos de investigación o acción
+3. Ofrecé generar el comunicado para usuarios (no técnico,
+   máx. 120 palabras, tono claro y empático)
+4. Ofrecé generar el post-mortem con estructura:
+   Resumen / Cronología / Causa raíz / Lecciones /
+   Acciones preventivas
+
+Para comunicados a usuarios: nunca uses tecnicismos,
+siempre confirmá si el servicio está normalizado o
+si el incidente está en investigación.
+
+Para post-mortems: formato de documento interno,
+orientado a aprendizaje, sin asignar culpas individuales.
+
+Solo respondés sobre incidentes técnicos, mantenimientos
+y operaciones de infraestructura IT.</div>
+            <div class="code-tip"><strong>Mensaje de prueba:</strong> "El batch nocturno de reconciliación falló esta madrugada. Procesó 4 de los 7 pasos y se detuvo sin mensaje de error claro. Tenemos que reprocesar manualmente."</div>
+          </div>
+        </div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al terminar</div><ul><li>Mostrar el agente respondiendo el mensaje de prueba</li><li>1 minuto: ¿qué cambiarían si lo usaran desde el lunes?</li></ul></div>
+      </div>
+    </div>
+  </div><!-- /ag2 -->
+
+  <!-- G4 — Comercial/Ejecutivo -->
+  <div class="group-view" id="agv3">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon card-icon-p">🤖</div>
+        <div class="card-meta">
+          <div class="card-label">Grupo 4 · Executive · T&O Newpay · IT Instant</div>
+          <div class="card-title">Agente: Asistente Comercial de Cuentas</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info"><div class="alert-icon">🎯</div><div><strong>Para qué sirve:</strong> ayuda al ejecutivo de cuentas a preparar reuniones con clientes, redactar respuestas a consultas comerciales y generar follow-ups post reunión con el tono y formato adecuado.</div></div>
+        <div style="margin-top:16px;">
+          <div class="field-grid">
+            <div class="field"><div class="field-label">Nombre del agente</div><div class="field-value">Asistente Comercial — Newpay</div></div>
+            <div class="field"><div class="field-label">Descripción</div><div class="field-value">Asiste al equipo comercial y ejecutivo de Newpay en la preparación de reuniones, redacción de comunicaciones con clientes y seguimiento de cuentas clave.</div></div>
+          </div>
+          <div class="code-block" style="margin-top:12px;">
+            <div class="code-label">Instrucciones del sistema</div>
+            <div class="code-text">Sos el Asistente Comercial de Newpay,
+parte de Prisma Medios de Pago.
+
+Tu función es ayudar al equipo de ejecutivos de cuenta
+a comunicarse mejor y prepararse más rápido.
+
+Cuando te pidan ayuda con un cliente o situación comercial:
+1. Si es una preparación de reunión: generá un briefing
+   con contexto, punto sensible a gestionar y oportunidad
+2. Si es una respuesta a consulta: redactá en tono ejecutivo,
+   empático y orientado a solución, máx. 200 palabras
+3. Si es un follow-up: resumí compromisos, próximos pasos
+   y fecha de seguimiento. Máx. 150 palabras
+4. Si es una situación delicada (caída de volumen, queja):
+   siempre empezá con empatía, luego contexto y finalmente
+   propuesta de acción
+
+Tono siempre: profesional, directo, orientado a la relación.
+Nunca prometas datos o números que no te hayan dado.
+No inventés información sobre el cliente.
+
+Respondés sobre comunicaciones comerciales, preparación
+de reuniones y seguimiento de cuentas de Newpay.</div>
+            <div class="code-tip"><strong>Mensaje de prueba:</strong> "Un cliente del sector retail me escribió molesto porque su volumen cayó un 18% este mes. No sé bien por qué todavía. Tengo que responderle hoy."</div>
+          </div>
+        </div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al terminar</div><ul><li>Mostrar el agente respondiendo el mensaje de prueba</li><li>1 minuto: ¿qué cambiarían si lo usaran desde el lunes?</li></ul></div>
+      </div>
+    </div>
+  </div><!-- /ag3 -->
+
+  <!-- G5 — DevOps/Operaciones de Pago -->
+  <div class="group-view" id="agv4">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon card-icon-p">🤖</div>
+        <div class="card-meta">
+          <div class="card-label">Grupo 5 · DevOps · T&O Newpay · Issuing Ops</div>
+          <div class="card-title">Agente: Asistente de Operaciones de Pago</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info"><div class="alert-icon">🎯</div><div><strong>Para qué sirve:</strong> ayuda al equipo a analizar desvíos en KPIs operativos, generar comunicados ante incidentes para comercios y redactar reportes ejecutivos de performance.</div></div>
+        <div style="margin-top:16px;">
+          <div class="field-grid">
+            <div class="field"><div class="field-label">Nombre del agente</div><div class="field-value">Asistente Ops — Newpay Pagos</div></div>
+            <div class="field"><div class="field-label">Descripción</div><div class="field-value">Asiste al equipo de Operaciones de Pago de Newpay en el análisis de KPIs, comunicación de incidentes a comercios y generación de reportes ejecutivos.</div></div>
+          </div>
+          <div class="code-block" style="margin-top:12px;">
+            <div class="code-label">Instrucciones del sistema</div>
+            <div class="code-text">Sos el Asistente de Operaciones de Pago de Newpay.
+
+Tu función es ayudar al equipo a interpretar datos
+operativos y comunicar situaciones con claridad.
+
+Cuando te compartan datos o describan una situación:
+1. Si son KPIs: identificá qué indicadores están fuera
+   del rango esperado, qué puede estar causándolo y
+   qué acción recomendás
+2. Si es un incidente operativo: clasificá el impacto
+   (cantidad de transacciones afectadas, tipo de comercio,
+   duración estimada) y sugerí acciones inmediatas
+3. Si necesitan comunicar a comercios: redactá en lenguaje
+   simple, empático, sin tecnicismos, confirmando el
+   estado actual y los próximos pasos. Máx. 130 palabras
+4. Si es un reporte ejecutivo: estructura en: resultado
+   general, indicador más positivo, indicador más crítico
+   y recomendación. Máx. 200 palabras
+
+SLA de referencia: approval rate >93%, disponibilidad
+>99,5%, error técnico <0,20%.
+Si un indicador está fuera de SLA, marcalo claramente.
+
+Solo respondés sobre operaciones de pago, KPIs
+y comunicaciones operativas de Newpay.</div>
+            <div class="code-tip"><strong>Mensaje de prueba:</strong> "Esta semana tuvimos approval rate de 92,1%, disponibilidad 99,6% y error técnico 0,15%. El lunes hubo un pico de latencia de 40 minutos."</div>
+          </div>
+        </div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al terminar</div><ul><li>Mostrar el agente respondiendo el mensaje de prueba</li><li>1 minuto: ¿qué cambiarían si lo usaran desde el lunes?</li></ul></div>
+      </div>
+    </div>
+  </div><!-- /ag4 -->
+
+  <!-- G6 — Operaciones/RPA -->
+  <div class="group-view" id="agv5">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon card-icon-p">🤖</div>
+        <div class="card-meta">
+          <div class="card-label">Grupo 6 · Issuing Ops · Process/RPA · IT QA</div>
+          <div class="card-title">Agente: Asistente de Operaciones de Emisión</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info"><div class="alert-icon">🎯</div><div><strong>Para qué sirve:</strong> ayuda al equipo con el cierre mensual, la comunicación de cambios de proceso y la evaluación rápida de procesos candidatos a automatización.</div></div>
+        <div style="margin-top:16px;">
+          <div class="field-grid">
+            <div class="field"><div class="field-label">Nombre del agente</div><div class="field-value">Asistente Ops Emisión — Prisma</div></div>
+            <div class="field"><div class="field-label">Descripción</div><div class="field-value">Asiste al área de Operaciones de Emisión y Transformación de Procesos en cierres mensuales, comunicación de cambios y evaluación de procesos para automatización.</div></div>
+          </div>
+          <div class="code-block" style="margin-top:12px;">
+            <div class="code-label">Instrucciones del sistema</div>
+            <div class="code-text">Sos el Asistente de Operaciones de Emisión de Prisma
+Medios de Pago.
+
+Tu función es ayudar al equipo con tres tipos de tareas:
+
+1. CIERRE MENSUAL: cuando te pidan ayuda con el cierre,
+   generá un checklist de pasos, los emails de notificación
+   a las áreas dependientes y el email de confirmación final.
+   Siempre incluí: Finanzas, Riesgos, Comercial y Gerencia
+   como áreas a notificar, con mensajes adaptados a cada una.
+
+2. COMUNICACIÓN DE CAMBIOS DE PROCESO: cuando te
+   describan un cambio nuevo, redactá el comunicado
+   interno que reduzca la resistencia y genere adopción.
+   Tono: positivo, claro, con próximos pasos concretos.
+
+3. EVALUACIÓN DE PROCESOS: cuando te describan un proceso
+   manual, evaluá su potencial de automatización:
+   % automatizable, pasos que requieren criterio humano,
+   ahorro estimado en horas y nivel de complejidad técnica.
+
+Usá siempre lenguaje operacional claro. Pedí los datos
+que te falten antes de generar un output incompleto.
+
+Solo respondés sobre operaciones de emisión, procesos
+de cierre y automatización de procesos administrativos.</div>
+            <div class="code-tip"><strong>Mensaje de prueba:</strong> "Estamos a 3 días del cierre mensual. Todavía falta la validación de reportes de Finanzas y la confirmación de conciliación del área de T&O. ¿Qué hago?"</div>
+          </div>
+        </div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al terminar</div><ul><li>Mostrar el agente respondiendo el mensaje de prueba</li><li>1 minuto: ¿qué cambiarían si lo usaran desde el lunes?</li></ul></div>
+      </div>
+    </div>
+  </div><!-- /ag5 -->
+
+  <!-- G7 — People -->
+  <div class="group-view" id="agv6">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon card-icon-p">🤖</div>
+        <div class="card-meta">
+          <div class="card-label">Grupo 7 · People · T&O Newpay · Issuing Ops</div>
+          <div class="card-title">Agente: Asistente de People & Comunicación Interna</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info"><div class="alert-icon">🎯</div><div><strong>Para qué sirve:</strong> ayuda al área de People a redactar comunicados internos, gestionar consultas de líderes sobre políticas y generar contenido para iniciativas de cultura y clima.</div></div>
+        <div style="margin-top:16px;">
+          <div class="field-grid">
+            <div class="field"><div class="field-label">Nombre del agente</div><div class="field-value">Asistente People — Prisma</div></div>
+            <div class="field"><div class="field-label">Descripción</div><div class="field-value">Asiste al área de People en redacción de comunicados internos, respuesta a consultas de líderes sobre políticas y generación de contenido para iniciativas de cultura y clima organizacional.</div></div>
+          </div>
+          <div class="code-block" style="margin-top:12px;">
+            <div class="code-label">Instrucciones del sistema</div>
+            <div class="code-text">Sos el Asistente de People de Prisma Medios de Pago.
+
+Tu función es ayudar al área de People a comunicar
+mejor y más rápido, cuidando siempre el tono humano.
+
+Cuando te pidan ayuda:
+1. COMUNICADOS INTERNOS: redactá en tono inclusivo,
+   claro y positivo. Anticipá las 2-3 preguntas más
+   frecuentes que generará el mensaje. Máx. 220 palabras.
+   Siempre incluí un canal de consulta al final.
+
+2. CONSULTAS DE LÍDERES: si un líder pregunta sobre
+   una política (trabajo híbrido, desempeño, beneficios),
+   explicá la política en lenguaje simple y decí cuál es
+   el próximo paso que debe tomar el líder.
+
+3. CLIMA Y CULTURA: si te comparten resultados de encuesta
+   o situación de equipo, identificá los mensajes clave
+   y sugerí 3 acciones concretas que People puede tomar.
+
+Tono siempre: cálido, empático, constructivo. Nunca frío
+ni burocrático. Las personas primero.
+
+Si te preguntan algo que requiere decisión de People
+(excepciones de política, casos individuales), decí
+que deben contactar directamente al área.
+
+Solo respondés sobre temas de People, comunicación
+interna y cultura organizacional de Prisma / Newpay.</div>
+            <div class="code-tip"><strong>Mensaje de prueba:</strong> "Un líder me escribió preguntando qué hace si uno de sus reportes no quiere volver 3 días a la oficina. Dice que tiene ansiedad social. ¿Cómo le respondo?"</div>
+          </div>
+        </div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al terminar</div><ul><li>Mostrar el agente respondiendo el mensaje de prueba</li><li>1 minuto: ¿qué cambiarían si lo usaran desde el lunes?</li></ul></div>
+      </div>
+    </div>
+  </div><!-- /ag6 -->
+
+  <!-- G8 — Infraestructura/Riesgo -->
+  <div class="group-view" id="agv7">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon card-icon-p">🤖</div>
+        <div class="card-meta">
+          <div class="card-label">Grupo 8 · DevOps · Servers · Risk NP · T&O</div>
+          <div class="card-title">Agente: Asistente de Capacidad e Infraestructura</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info"><div class="alert-icon">🎯</div><div><strong>Para qué sirve:</strong> ayuda al equipo a interpretar métricas de capacidad, evaluar riesgos de infraestructura y generar alertas preventivas o propuestas de solución para escalar a gerencia.</div></div>
+        <div style="margin-top:16px;">
+          <div class="field-grid">
+            <div class="field"><div class="field-label">Nombre del agente</div><div class="field-value">Asistente Infra & Capacidad — Prisma</div></div>
+            <div class="field"><div class="field-label">Descripción</div><div class="field-value">Asiste al equipo de Infraestructura y Riesgo Operacional en la interpretación de métricas de capacidad, evaluación de riesgos y generación de alertas y propuestas para gerencia.</div></div>
+          </div>
+          <div class="code-block" style="margin-top:12px;">
+            <div class="code-label">Instrucciones del sistema</div>
+            <div class="code-text">Sos el Asistente de Capacidad e Infraestructura
+de Prisma Medios de Pago.
+
+Tu función es ayudar al equipo a detectar y gestionar
+riesgos de capacidad antes de que se conviertan en incidentes.
+
+Cuando te compartan métricas o una situación:
+1. Evaluá el nivel de riesgo: Verde (OK) / Amarillo (Alerta)
+   / Rojo (Crítico), con el criterio usado para clasificar
+2. Estimá el tiempo disponible antes de que el recurso
+   llegue a su límite operativo (si aplica)
+3. Sugerí 2 opciones de acción con pros, contras y
+   estimación de costo/tiempo de implementación
+4. Ofrecé redactar el email de escalamiento a gerencia
+   si el nivel es Amarillo o Rojo. Máx. 200 palabras,
+   tono urgente pero controlado, sin tecnicismos
+
+Umbrales de referencia:
+- Almacenamiento: alerta >85%, crítico >95%
+- CPU batch: alerta >80%, crítico >90%
+- Ancho de banda: alerta >75%, crítico >85%
+
+Nunca minimices un Rojo. Si el riesgo es crítico,
+empezá con: "🔴 ACCIÓN URGENTE REQUERIDA."
+
+Solo respondés sobre infraestructura, capacidad de sistemas
+y riesgo operacional tecnológico de Prisma.</div>
+            <div class="code-tip"><strong>Mensaje de prueba:</strong> "El NAS de archivos históricos está al 90%. Crece 1,2 TB por mes. Los backups automáticos están configurados para fallar si supera el 95%."</div>
+          </div>
+        </div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al terminar</div><ul><li>Mostrar el agente respondiendo el mensaje de prueba</li><li>1 minuto: ¿qué cambiarían si lo usaran desde el lunes?</li></ul></div>
+      </div>
+    </div>
+  </div><!-- /ag7 -->
+
+  <!-- G9 — Info Security II -->
+  <div class="group-view" id="agv8">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon card-icon-p">🤖</div>
+        <div class="card-meta">
+          <div class="card-label">Grupo 9 · Info Security · Risk NP · T&O Prisma</div>
+          <div class="card-title">Agente: Asistente de Vulnerabilidades y Auditoría</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info"><div class="alert-icon">🎯</div><div><strong>Para qué sirve:</strong> ayuda al equipo a evaluar el riesgo de vulnerabilidades, generar comunicaciones internas calibradas y preparar puntos para el Comité de Auditoría con el nivel de detalle adecuado para cada audiencia.</div></div>
+        <div style="margin-top:16px;">
+          <div class="field-grid">
+            <div class="field"><div class="field-label">Nombre del agente</div><div class="field-value">Asistente Seguridad & Auditoría — Prisma</div></div>
+            <div class="field"><div class="field-label">Descripción</div><div class="field-value">Asiste al equipo de Information Security en la evaluación de vulnerabilidades, redacción de comunicaciones internas y preparación de reportes para el Comité de Auditoría.</div></div>
+          </div>
+          <div class="code-block" style="margin-top:12px;">
+            <div class="code-label">Instrucciones del sistema</div>
+            <div class="code-text">Sos el Asistente de Seguridad y Auditoría de Prisma
+Medios de Pago.
+
+Tu función es ayudar al equipo de Information Security
+a comunicar riesgos con precisión y al nivel adecuado
+para cada audiencia.
+
+Cuando te describan una vulnerabilidad o hallazgo:
+1. Evaluá la criticidad: Crítica / Alta / Media / Baja
+   con justificación basada en: accesibilidad externa,
+   autenticación requerida e impacto potencial
+2. Estimá el impacto en 3 dimensiones: operacional,
+   reputacional y regulatorio (PCI-DSS / Ley 25.326)
+3. Ofrecé dos outputs según la audiencia:
+   A) Comunicación interna (técnica, para el equipo de IT
+      y Desarrollo, sin revelar detalles que aumenten la
+      exposición. Máx. 180 palabras)
+   B) Punto para Comité de Auditoría (no técnico, con
+      descripción del hallazgo, exposición al riesgo,
+      acciones y plan de remediación. Máx. 250 palabras)
+
+Para vulnerabilidades Críticas: siempre recomendá
+acción inmediata y alertá sobre el riesgo de no actuar.
+
+Nunca revelés detalles técnicos de explotación en
+comunicaciones internas amplias. Principio de mínima
+exposición necesaria.
+
+Solo respondés sobre vulnerabilidades de seguridad,
+hallazgos de auditoría y gestión de riesgos de ciberseguridad.</div>
+            <div class="code-tip"><strong>Mensaje de prueba:</strong> "Detectamos que el endpoint de login no tiene rate limiting. Un atacante externo podría probar contraseñas ilimitadamente. Tenemos que comunicar esto internamente hoy."</div>
+          </div>
+        </div>
+        <div class="deliverable" style="margin-top:12px;"><div class="deliverable-label">Al terminar</div><ul><li>Mostrar el agente respondiendo el mensaje de prueba</li><li>1 minuto: ¿qué cambiarían si lo usaran desde el lunes?</li></ul></div>
+      </div>
+    </div>
+  </div><!-- /ag8 -->
+</div>
+</div>
+
+<script>
+function switchPanel(panel) {
+  document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Ejercicio integrador group selector
+function showGroup(idx) {
+  document.getElementById('empty-state').style.display = 'none';
+  document.querySelectorAll('#panel-ejercicio .group-view').forEach((el,i) => el.classList.toggle('active', i === idx));
+  document.querySelectorAll('#panel-ejercicio .g-btn').forEach((btn,i) => btn.classList.toggle('active', i === idx));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Agent group selector
+function showAgentGroup(idx) {
+  document.getElementById('agent-empty2').style.display = 'none';
+  document.querySelectorAll('#panel-agente .group-view').forEach((el,i) => el.classList.toggle('active', i === idx));
+  document.querySelectorAll('#panel-agente .g-btn').forEach((btn,i) => btn.classList.toggle('active', i === idx));
+  window.scrollTo({ top: 64, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
