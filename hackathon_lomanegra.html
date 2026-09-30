@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Hackathon Loma Negra — Los 8 casos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F0F14;
+    --bg-panel: #16161F;
+    --bg-panel-2: #1E1E2E;
+    --line: rgba(255,255,255,0.07);
+    --ink: #7C5CF6;
+    --ink-soft: #9D85F8;
+    --ink-dim: rgba(124,92,246,0.15);
+    --ink-border: rgba(124,92,246,0.35);
+    --orange: #F59E0B;
+    --orange-soft: rgba(245,158,11,0.12);
+    --text: #F4F4F8;
+    --muted: #C4C4D0;
+    --muted-2: #8A8A9A;
+    --faint: #5A5A72;
+    --good: #10D9A0;
+    --good-soft: rgba(16,217,160,0.10);
+    --bad: #F2545B;
+    --bad-soft: rgba(242,84,91,0.10);
+    --radius: 16px;
+    font-size: 16px;
+  }
+  :root[data-theme="dark"] { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-weight: 300;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    position: relative;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body::before {
+    content: '';
+    position: fixed;
+    top: -20%; left: -10%;
+    width: 60%; height: 60%;
+    background: radial-gradient(ellipse, rgba(124,92,246,0.16) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -10%; right: -10%;
+    width: 50%; height: 50%;
+    background: radial-gradient(ellipse, rgba(124,92,246,0.10) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .mono { font-family: "Inter", sans-serif; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  a { color: inherit; }
+
+  /* ---------- Shell ---------- */
+  #shell {
+    display: flex;
+    min-height: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  #rail {
+    width: 280px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--line);
+    background: var(--bg-panel);
+    padding: 28px 20px 28px 28px;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+  }
+  #main {
+    flex: 1;
+    min-width: 0;
+    padding: 40px 48px 90px;
+  }
+  .brand {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-2);
+    margin-bottom: 8px;
+  }
+  .rail-title {
+    font-size: 1.32rem;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin: 0 0 22px;
+    color: var(--text);
+  }
+  .rail-title em { color: var(--ink); font-style: normal; }
+
+  .chain {
+    position: relative;
+    padding-left: 22px;
+    border-left: 2px dashed var(--line);
+  }
+  .chain-item {
+    position: relative;
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: 1px solid transparent;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 11px 12px 11px 16px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.86rem;
+    line-height: 1.35;
+  }
+  .chain-item::before {
+    content: "";
+    position: absolute;
+    left: -28px;
+    top: 16px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--faint);
+  }
+  .chain-item:hover { background: var(--bg-panel-2); color: var(--text); }
+  .chain-item.active { background: var(--ink-dim); border-color: var(--ink-border); color: var(--text); }
+  .chain-item.active::before { background: var(--ink); border-color: var(--ink); }
+  .chain-item .num {
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .chain-item .name { font-weight: 600; color: var(--text); display: block; }
+  .chain-item .rubro { display: block; color: var(--muted-2); font-size: 0.78rem; margin-top: 1px; font-weight: 300; }
+
+  .rail-foot {
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .rail-foot button {
+    width: 100%;
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 10px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .rail-foot button:hover { border-color: var(--ink-border); color: var(--ink-soft); }
+
+  /* ---------- Mobile nav toggle ---------- */
+  #railToggle {
+    display: none;
+    position: fixed;
+    z-index: 40;
+    top: calc(env(safe-area-inset-top, 0px) + 14px);
+    right: 16px;
+    background: var(--ink-dim);
+    border: 1px solid var(--ink-border);
+    color: var(--ink-soft);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 9px 14px;
+    border-radius: 999px;
+  }
+
+  /* ---------- Home view ---------- */
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: var(--ink-dim);
+    border: 1px solid var(--ink-border);
+    padding: 5px 14px;
+    border-radius: 999px;
+    margin: 0 0 22px;
+  }
+  h1.hero {
+    font-size: clamp(2rem, 4.2vw, 3.1rem);
+    line-height: 1.06;
+    margin: 0 0 18px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    max-width: 18ch;
+    color: var(--text);
+  }
+  h1.hero em { color: var(--ink); font-style: normal; }
+  .lede {
+    max-width: 62ch;
+    color: var(--muted);
+    font-weight: 300;
+    font-size: 1.02rem;
+    line-height: 1.7;
+    margin: 0 0 34px;
+  }
+  .agenda {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px;
+    margin-bottom: 44px;
+  }
+  .agenda .cell {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+  .agenda .cell .t {
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+    margin-bottom: 6px;
+  }
+  .agenda .cell .d { font-size: 0.88rem; color: var(--muted); line-height: 1.4; font-weight: 300; }
+
+  .map-label {
+    font-size: 0.92rem;
+    color: var(--muted-2);
+    margin-bottom: 18px;
+    max-width: 60ch;
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  .station-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 14px;
+  }
+  .station {
+    position: relative;
+    text-align: left;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--text);
+    cursor: pointer;
+    padding: 20px 18px 18px;
+    font-family: inherit;
+    transition: border-color .15s ease, transform .15s ease, background .15s ease;
+  }
+  .station:hover { background: var(--bg-panel-2); }
+  .station::before, .station::after {
+    display: none;
+    content: "";
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-color: var(--ink-soft);
+    border-style: solid;
+  }
+  .station:hover { border-color: var(--ink-border); transform: translateY(-2px); }
+  .station .code {
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .station .name { font-weight: 700; font-size: 1.05rem; margin-bottom: 6px; color: var(--text); }
+  .station .rubro { color: var(--muted); font-size: 0.85rem; line-height: 1.4; font-weight: 300; }
+
+  /* ---------- Group detail view ---------- */
+  .crumb {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .g-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .g-head h1 {
+    font-size: clamp(1.6rem, 3vw, 2.3rem);
+    margin: 0;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .g-rubro {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0 0 28px;
+  }
+
+  section.block { margin-bottom: 38px; }
+  section.block h2 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 14px;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  p.resumen { font-size: 1.02rem; line-height: 1.65; max-width: 72ch; color: var(--text); font-weight: 300; }
+  p.venta { font-size: 0.98rem; line-height: 1.6; max-width: 72ch; color: var(--muted); font-weight: 300; }
+
+  .twocol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 720px) { .twocol { grid-template-columns: 1fr; } }
+  .callout {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    border-left: 3px solid var(--good);
+  }
+  .callout.bad { border-left-color: var(--bad); }
+  .callout .h { font-weight: 700; font-size: 0.72rem; margin-bottom: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .callout.good .h { color: var(--good); }
+  .callout.bad .h { color: var(--bad); }
+  .callout ul { margin: 0; padding-left: 18px; }
+  .callout li { font-size: 0.92rem; line-height: 1.55; margin-bottom: 8px; color: var(--muted); font-weight: 300; }
+  .callout li:last-child { margin-bottom: 0; }
+
+  table.snap { width: 100%; border-collapse: collapse; max-width: 640px; background: var(--bg-panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  table.snap td { padding: 11px 16px; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+  table.snap td:first-child { color: var(--muted-2); width: 45%; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; }
+  table.snap tr:last-child td { border-bottom: none; }
+
+  .datafields { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .datafields .row { display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid var(--line); }
+  .datafields .row:last-child { border-bottom: none; }
+  .datafields .k { padding: 12px 14px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); background: var(--bg-panel); border-right: 1px solid var(--line); }
+  .datafields .v { padding: 12px 16px; font-size: 0.9rem; line-height: 1.55; color: var(--muted); background: var(--bg-panel-2); font-weight: 300; }
+  @media (max-width: 640px) { .datafields .row { grid-template-columns: 1fr; } .datafields .k { border-right: none; border-bottom: 1px solid var(--line); } }
+
+  .note {
+    font-size: 0.85rem;
+    color: var(--muted-2);
+    font-style: italic;
+    font-weight: 300;
+    margin: 12px 0 0;
+    max-width: 72ch;
+    line-height: 1.5;
+  }
+
+  .dlbtn {
+    display: inline-block;
+    text-decoration: none;
+    margin-top: 16px;
+    background: var(--ink-dim);
+    border: 1px solid var(--ink-border);
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.86rem;
+    padding: 11px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .dlbtn:hover:not(:disabled) { background: var(--ink); color: #fff; }
+  .dlbtn:disabled { opacity: 0.7; cursor: default; }
+
+  .phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 900px) { .phase-grid { grid-template-columns: 1fr; } }
+  .phase {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    border-top: 3px solid var(--tone, var(--ink));
+    padding: 18px 18px 6px;
+  }
+  .phase.negocio { --tone: #10D9A0; }
+  .phase.data { --tone: #7C5CF6; }
+  .phase.mixto { --tone: #F59E0B; }
+  .phase .ph-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tone); margin-bottom: 4px; }
+  .phase .ph-sub { font-size: 0.74rem; color: var(--muted-2); margin-bottom: 14px; font-weight: 300; }
+  .phase ol { margin: 0; padding-left: 18px; }
+  .phase li { font-size: 0.86rem; line-height: 1.5; color: var(--muted); margin-bottom: 12px; font-weight: 300; }
+
+  .pitchbox {
+    border: 1px solid var(--orange);
+    background: var(--orange-soft);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    max-width: 72ch;
+  }
+  .pitchbox .h { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--orange); margin-bottom: 8px; }
+  .pitchbox p { margin: 0; font-size: 0.94rem; line-height: 1.55; color: var(--text); font-weight: 300; }
+
+  .navfoot {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 48px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .navfoot button {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.78rem;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-radius: 10px;
+  }
+  .navfoot button:hover { border-color: var(--ink-border); color: var(--ink-soft); }
+
+  @media (max-width: 860px) {
+    #railToggle { display: block; }
+    #rail {
+      position: fixed;
+      z-index: 35;
+      inset: 0 15% 0 0;
+      transform: translateX(-102%);
+      transition: transform .22s ease;
+      box-shadow: 30px 0 60px rgba(0,0,0,.35);
+    }
+    #rail.open { transform: translateX(0); }
+    #main { padding: 78px 22px 70px; }
+    .g-head h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<button id="railToggle" onclick="document.getElementById('rail').classList.toggle('open')">MENÚ · 8 GRUPOS</button>
+
+<div id="shell">
+  <aside id="rail">
+    <div class="brand">DIGITAL HOUSE · PROGRAMA IA APLICADA</div>
+    <div class="rail-title">Hackathon<br><em>Loma Negra</em></div>
+    <nav class="chain" id="chainNav"></nav>
+    <div class="rail-foot">
+      <button onclick="goHome()">← Volver al inicio</button>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+
+<script>
+const GROUPS = [
+  {
+    code: "AC", n: 1, nombre: "Áridos del Cerro",
+    rubro: "Cantera de áridos — arena, piedra partida, canto rodado",
+    resumen: "Explotación de 3 canteras de áridos para la construcción, con contratos de suministro a plantas de hormigón elaborado de la región.",
+    venta: "El grupo familiar dueño de las canteras no tiene sucesión y prefiere vender antes de que se complique la renovación de las concesiones mineras.",
+    fortalezas: ["Reservas con vida útil estimada de más de 15 años.", "Contratos de suministro de largo plazo con 2 hormigoneras grandes de la zona."],
+    alertas: ["Una de las 3 canteras tiene la licencia ambiental en revisión.", "Alta concentración: 2 clientes explican la mayor parte de la facturación.", "Costo de combustible y transporte muy volátil, afecta el margen mes a mes."],
+    snapshot: [["Facturación anual", "≈ $1.100.000.000"], ["Antigüedad", "22 años"], ["Yacimientos", "3"], ["Empleados", "≈ 70"], ["Margen bruto estimado", "≈ 38%"]],
+    periodo: "24 meses", granularidad: "Una fila por venta (yacimiento, tipo de árido, cliente, mes)",
+    columnas: "Fecha, Yacimiento, Tipo de árido (Arena / Piedra partida / Canto rodado), Cliente, Toneladas, Precio por tonelada, Costo de combustible y transporte por tonelada, Total facturado",
+    cualitativo: "Estado de la licencia ambiental por yacimiento (Vigente / En revisión) — nota aparte, no es columna numérica.",
+    tareasNegocio: [
+      "Explorar la hoja Empleados: calcular rotación, antigüedad promedio y cómo se distribuye la dotación por área.",
+      "Explorar la hoja Clientes: pensar una segmentación simple y si la cartera está sana o concentrada.",
+      "Definir un KPI de concentración de clientes y el umbral que dispararía preocupación.",
+      "Definir cómo medir el impacto del costo de combustible/transporte sobre el margen por tonelada.",
+      "Fijar el criterio de decisión de compra.",
+      "Redactar la consigna para el área de Data.",
+    ],
+    tareasData: [
+      "Diagnosticar y limpiar los problemas de calidad del archivo antes de calcular cualquier KPI.",
+      "Explorar la estructura: yacimientos, tipos de árido, clientes y rango de fechas.",
+      "Diagnosticar qué preguntas SÍ se pueden responder y cuáles no.",
+      "Calcular una primera versión de facturación y margen por yacimiento y por cliente.",
+      "Dejar preparado el archivo en la herramienta elegida.",
+    ],
+    tareasMixto: [
+      "Cruzar los KPIs definidos por RRHH/Fin/Comercial con lo que Data ya exploró.",
+      "Armar el dashboard: facturación y margen por yacimiento, concentración de clientes, costo de combustible.",
+      "Redactar insights y la recomendación final de compra.",
+      "Preparar el pitch de 3 minutos.",
+    ],
+    pitch: "La decisión (comprar o no) + el KPI de concentración de clientes + cómo pesó el estado de las licencias ambientales, aunque sea un dato cualitativo.",
+  },
+  {
+    code: "HS", n: 2, nombre: "Hormigones del Sur",
+    rubro: "Planta de hormigón elaborado (ready-mix) — 5 plantas móviles",
+    resumen: "Elaboración y distribución de hormigón elaborado para obra pública y privada, con flota propia de mixers en una región con fuerte actividad de obra pública.",
+    venta: "Los socios fundadores recibieron una oferta de un fondo de infraestructura y evalúan vender antes del próximo ciclo de inversión pública.",
+    fortalezas: ["Contratos vigentes con 3 obras públicas de gran escala.", "Flota de mixers relativamente nueva y bien mantenida."],
+    alertas: ["65% de la facturación depende de la obra pública.", "Atrasos de cobro del Estado que generan tensión de caja recurrente.", "Un solo proveedor de cemento: riesgo de abastecimiento concentrado."],
+    snapshot: [["Facturación anual", "≈ $2.400.000.000"], ["Antigüedad", "14 años"], ["Plantas móviles", "5"], ["Empleados", "≈ 95"], ["Concentración obra pública", "65% de la facturación"]],
+    periodo: "24 meses", granularidad: "Una fila por obra/entrega (planta, cliente, obra, mes)",
+    columnas: "Fecha, Planta, Cliente, Obra, Tipo de obra (Pública / Privada), M³ vendidos, Precio por m³, Costo de cemento por m³, Días de atraso de cobro, Total facturado",
+    cualitativo: "Detalle de los 3 contratos de obra pública vigentes (monto, plazo, estado) — se entrega como anexo, no como fila de datos.",
+    tareasNegocio: [
+      "Explorar la hoja Empleados: calcular rotación, antigüedad promedio y distribución por área.",
+      "Explorar la hoja Clientes: segmentar por tipo (público/privado) y revisar concentración.",
+      "Definir el KPI de concentración en obra pública y el umbral de riesgo aceptable.",
+      "Definir cómo medir el impacto de los atrasos de cobro del Estado sobre la caja.",
+      "Fijar el criterio de decisión de compra.",
+      "Redactar la consigna para el área de Data.",
+    ],
+    tareasData: [
+      "Diagnosticar y limpiar los problemas de calidad del archivo antes de calcular cualquier KPI.",
+      "Explorar la estructura: plantas, tipos de obra, clientes, rango de fechas.",
+      "Diagnosticar qué se puede medir y qué no (el riesgo del proveedor único es cualitativo).",
+      "Calcular una primera versión de facturación por tipo de obra y evolución de atrasos de cobro.",
+      "Dejar preparado el archivo en la herramienta elegida.",
+    ],
+    tareasMixto: [
+      "Cruzar los KPIs de concentración y cobranza con los datos explorados.",
+      "Armar el dashboard: facturación por tipo de obra, atrasos de cobro, m³ por planta.",
+      "Redactar insights y la recomendación final de compra.",
+      "Preparar el pitch.",
+    ],
+    pitch: "La decisión + el KPI de dependencia de la obra pública + cómo afecta el atraso de cobro del Estado a la valuación de la empresa.",
+  },
+  {
+    code: "BSR", n: 3, nombre: "Bloquera San Rafael",
+    rubro: "Fábrica de premoldeados de hormigón (bloques, postes, viguetas)",
+    resumen: "Fábrica con 20 años de trayectoria en la producción de premoldeados de hormigón para la construcción residencial e industrial de su región.",
+    venta: "El fundador falleció y la sucesión familiar decidió vender la operación completa.",
+    fortalezas: ["Maquinaria propia, totalmente amortizada.", "Marca reconocida en la región por calidad constante del producto."],
+    alertas: ["Fuerte estacionalidad ligada al calendario de la construcción (caída marcada en invierno).", "Un solo cliente mayorista revende cerca de la mitad de la producción.", "Sin canal de venta directo ni presencia digital."],
+    snapshot: [["Facturación anual", "≈ $780.000.000"], ["Antigüedad", "20 años"], ["Líneas de producto", "Bloques, postes, viguetas"], ["Empleados", "≈ 45"], ["Concentración de cliente", "1 mayorista ≈ 50% de ventas"]],
+    periodo: "24 meses", granularidad: "Una fila por producto vendido y mes (línea, cliente, mes)",
+    columnas: "Fecha, Línea de producto (Bloques / Postes / Viguetas), Cliente, Unidades producidas, Unidades vendidas, Precio unitario, Total facturado, % de capacidad de planta utilizada",
+    cualitativo: "Antigüedad y estado de la maquinaria propia — ficha técnica de equipos aparte.",
+    tareasNegocio: [
+      "Explorar la hoja Empleados: calcular rotación, antigüedad promedio y distribución por área.",
+      "Explorar la hoja Clientes: revisar concentración del cliente mayorista.",
+      "Definir un KPI de estacionalidad y si ese patrón es manejable.",
+      "Definir el KPI de concentración del cliente mayorista y el riesgo que implica.",
+      "Fijar el criterio de decisión de compra.",
+      "Redactar la consigna para el área de Data.",
+    ],
+    tareasData: [
+      "Diagnosticar y limpiar los problemas de calidad del archivo antes de calcular cualquier KPI.",
+      "Explorar la estructura: líneas de producto, clientes, estacionalidad visible en las fechas.",
+      "Diagnosticar qué se puede medir y qué no (el estado real de la maquinaria requiere la ficha aparte).",
+      "Calcular una primera versión de producción y venta por línea y mes, marcando los meses de caída.",
+      "Dejar preparado el archivo en la herramienta elegida.",
+    ],
+    tareasMixto: [
+      "Cruzar los KPIs de estacionalidad y concentración con los datos explorados.",
+      "Armar el dashboard: producción/venta por línea y mes, participación del mayorista, capacidad utilizada.",
+      "Redactar insights y la recomendación final de compra.",
+      "Preparar el pitch.",
+    ],
+    pitch: "La decisión + el KPI de estacionalidad + qué harían con la dependencia del cliente mayorista si compraran la empresa.",
+  },
+  {
+    code: "DC", n: 4, nombre: "Distribuidora Constructor",
+    rubro: "Corralón / distribuidora mayorista de materiales — 6 sucursales",
+    resumen: "Distribuidora de materiales de construcción con 6 sucursales, cartera de clientes profesionales (constructoras y contratistas) y buena ubicación geográfica.",
+    venta: "Los dueños quieren jubilarse y no tienen quién continúe el negocio familiar.",
+    fortalezas: ["Cartera de clientes profesionales fidelizada de larga data.", "Buena ubicación geográfica de las 6 sucursales."],
+    alertas: ["Capital de trabajo muy ajustado: mucha venta a crédito y cobranza lenta.", "Stock con baja rotación en varias líneas de producto.", "Competencia de cadenas nacionales que presionan los precios a la baja."],
+    snapshot: [["Facturación anual", "≈ $1.900.000.000"], ["Antigüedad", "27 años"], ["Sucursales", "6"], ["Empleados", "≈ 55"], ["Días promedio de cobranza", "≈ 65 días"]],
+    periodo: "24 meses", granularidad: "Una fila por venta (sucursal, categoría, cliente, mes)",
+    columnas: "Fecha, Sucursal, Categoría de producto, Cliente, Modalidad (Contado / Crédito), Monto vendido, Días de cobranza, Costo de mercadería, Total facturado",
+    cualitativo: "Antigüedad y rotación de stock por línea de producto — reporte de inventario aparte.",
+    tareasNegocio: [
+      "Explorar la hoja Empleados: calcular rotación, antigüedad promedio y distribución por área.",
+      "Explorar la hoja Clientes: segmentar la cartera profesional por zona o tipo.",
+      "Definir el KPI de capital de trabajo: qué días de cobranza son aceptables.",
+      "Definir cómo medir la presión de precios de las cadenas nacionales sobre el margen.",
+      "Fijar el criterio de decisión de compra.",
+      "Redactar la consigna para el área de Data.",
+    ],
+    tareasData: [
+      "Diagnosticar y limpiar los problemas de calidad del archivo antes de calcular cualquier KPI.",
+      "Explorar la estructura: sucursales, categorías, modalidad de venta, rango de fechas.",
+      "Diagnosticar qué se puede medir y qué no (la rotación real de stock viene en el reporte aparte).",
+      "Calcular una primera versión de facturación por sucursal y evolución de días de cobranza.",
+      "Dejar preparado el archivo en la herramienta elegida.",
+    ],
+    tareasMixto: [
+      "Cruzar los KPIs de cobranza y presión de precios con los datos explorados.",
+      "Armar el dashboard: facturación por sucursal, días de cobranza, mix contado/crédito.",
+      "Redactar insights y la recomendación final de compra.",
+      "Preparar el pitch.",
+    ],
+    pitch: "La decisión + el KPI de días de cobranza + qué harían con el stock de baja rotación si compraran la empresa.",
+  },
+  {
+    code: "TF", n: 5, nombre: "TransCarga Federal",
+    rubro: "Logística y transporte de materiales a granel (cemento, áridos, hormigón)",
+    resumen: "Empresa de transporte especializada en carga a granel para la industria de la construcción, con flota propia y tercerizada.",
+    venta: "El grupo controlante (un holding logístico más grande) decide desprenderse de la unidad de transporte terrestre para concentrarse en su negocio principal.",
+    fortalezas: ["Contratos de transporte de largo plazo con 2 cementeras.", "Flota con GPS y buen historial de siniestralidad baja."],
+    alertas: ["Alta exposición al precio del combustible.", "Antigüedad de la flota tercerizada, difícil de controlar y estandarizar.", "2 clientes concentran cerca del 70% de la facturación."],
+    snapshot: [["Facturación anual", "≈ $1.650.000.000"], ["Antigüedad", "16 años"], ["Flota", "Propia + tercerizada"], ["Empleados", "≈ 60"], ["Concentración de clientes", "2 clientes ≈ 70%"]],
+    periodo: "24 meses", granularidad: "Una fila por viaje/mes agregado (cliente, tipo de flota, mes)",
+    columnas: "Fecha (mes), Cliente, Tipo de flota (Propia / Tercerizada), Toneladas transportadas, Costo de combustible, Costo de flete cobrado, Siniestros del mes, Total facturado",
+    cualitativo: "Antigüedad de cada unidad de la flota tercerizada — planilla de flota aparte.",
+    tareasNegocio: [
+      "Explorar la hoja Empleados: calcular rotación, antigüedad promedio y distribución por área.",
+      "Explorar la hoja Clientes: revisar concentración de los 2 clientes grandes.",
+      "Definir el KPI de concentración de clientes y el umbral de riesgo.",
+      "Definir cómo medir el impacto del costo de combustible sobre el margen del flete.",
+      "Fijar el criterio de decisión de compra.",
+      "Redactar la consigna para el área de Data.",
+    ],
+    tareasData: [
+      "Diagnosticar y limpiar los problemas de calidad del archivo antes de calcular cualquier KPI.",
+      "Explorar la estructura: clientes, tipo de flota, rango de fechas.",
+      "Diagnosticar qué se puede medir y qué no (la antigüedad real de la flota tercerizada está en la planilla aparte).",
+      "Calcular una primera versión de facturación y margen por cliente y tipo de flota.",
+      "Dejar preparado el archivo en la herramienta elegida.",
+    ],
+    tareasMixto: [
+      "Cruzar los KPIs de concentración y margen con los datos explorados.",
+      "Armar el dashboard: facturación por cliente, costo de combustible, siniestralidad por tipo de flota.",
+      "Redactar insights y la recomendación final de compra.",
+      "Preparar el pitch.",
+    ],
+    pitch: "La decisión + el KPI de concentración de clientes + qué plan tendrían para reducir la dependencia de esos 2 clientes.",
+  },
+  {
+    code: "QO", n: 6, nombre: "QuimiObra",
+    rubro: "Fabricante de aditivos químicos para hormigón",
+    resumen: "Planta local de aditivos químicos para hormigón (aceleradores, plastificantes, impermeabilizantes), con clientes industriales y buena diferenciación técnica.",
+    venta: "La casa matriz internacional decide salir de mercados chicos y vender la operación local.",
+    fortalezas: ["Cartera de productos con buena diferenciación técnica.", "Clientes industriales fidelizados de varios años."],
+    alertas: ["Dependencia de insumos importados, muy expuesta a la volatilidad cambiaria.", "Tras la venta, la marca pierde el respaldo de la casa matriz internacional.", "Capacidad de planta ociosa por encima del promedio del sector."],
+    snapshot: [["Facturación anual", "≈ $920.000.000"], ["Antigüedad", "12 años (operación local)"], ["Líneas de producto", "Acelerador, plastificante, impermeabilizante"], ["Empleados", "≈ 38"], ["Capacidad utilizada", "≈ 55%"]],
+    periodo: "24 meses", granularidad: "Una fila por venta (línea de producto, cliente, mes)",
+    columnas: "Fecha, Línea de producto, Cliente, Unidades vendidas, Precio unitario, Costo de insumo importado (USD), Tipo de cambio del mes, Total facturado",
+    cualitativo: "Capacidad de planta y % ocioso — ficha de planta aparte.",
+    tareasNegocio: [
+      "Explorar la hoja Empleados: calcular rotación, antigüedad promedio y distribución por área.",
+      "Explorar la hoja Clientes: revisar fidelización y concentración industrial.",
+      "Definir el KPI de exposición cambiaria sobre el margen.",
+      "Definir cómo pesar la pérdida del respaldo de la casa matriz en la decisión.",
+      "Fijar el criterio de decisión de compra.",
+      "Redactar la consigna para el área de Data.",
+    ],
+    tareasData: [
+      "Diagnosticar y limpiar los problemas de calidad del archivo antes de calcular cualquier KPI.",
+      "Explorar la estructura: líneas de producto, clientes, tipo de cambio por mes.",
+      "Diagnosticar qué se puede medir y qué no (la capacidad ociosa exacta está en la ficha aparte).",
+      "Calcular una primera versión de margen por línea, mostrando el efecto del tipo de cambio.",
+      "Dejar preparado el archivo en la herramienta elegida.",
+    ],
+    tareasMixto: [
+      "Cruzar el KPI de exposición cambiaria con los datos explorados.",
+      "Armar el dashboard: margen por línea de producto, evolución del tipo de cambio, ventas por cliente.",
+      "Redactar insights y la recomendación final de compra.",
+      "Preparar el pitch.",
+    ],
+    pitch: "La decisión + el KPI de exposición cambiaria + cómo pesa la pérdida del respaldo internacional de la marca.",
+  },
+  {
+    code: "RM", n: 7, nombre: "Rentamaq",
+    rubro: "Alquiler de maquinaria pesada y equipos para obra",
+    resumen: "Empresa de alquiler de maquinaria pesada (excavadoras, grúas, compactadoras) para obras de construcción, con flota diversificada y buena ocupación promedio.",
+    venta: "El dueño quiere reducir su exposición a un negocio de capital intensivo y diversificar hacia otro tipo de activos.",
+    fortalezas: ["Flota diversificada y con buen mantenimiento.", "Buena ocupación promedio de los equipos a lo largo del año."],
+    alertas: ["Alta necesidad de capital para renovar la flota en los próximos años.", "Morosidad creciente de algunos clientes constructores.", "Fuerte correlación con el ciclo de la obra privada, muy volátil."],
+    snapshot: [["Facturación anual", "≈ $1.350.000.000"], ["Antigüedad", "10 años"], ["Equipos en flota", "≈ 40"], ["Empleados", "≈ 25"], ["Ocupación promedio", "≈ 68%"]],
+    periodo: "24 meses", granularidad: "Una fila por alquiler (tipo de equipo, cliente, mes)",
+    columnas: "Fecha, Tipo de equipo (Excavadora / Grúa / Compactadora), Cliente, Horas alquiladas, Precio por hora, Días de mora del cliente, Total facturado",
+    cualitativo: "Antigüedad y estado de cada equipo de la flota — planilla de flota aparte.",
+    tareasNegocio: [
+      "Explorar la hoja Empleados: calcular rotación, antigüedad promedio y distribución por área.",
+      "Explorar la hoja Clientes: revisar concentración y riesgo de mora.",
+      "Definir el KPI de ocupación de flota y el umbral que hace rentable a un equipo.",
+      "Definir cómo medir el riesgo de morosidad sobre el flujo de caja.",
+      "Fijar el criterio de decisión de compra.",
+      "Redactar la consigna para el área de Data.",
+    ],
+    tareasData: [
+      "Diagnosticar y limpiar los problemas de calidad del archivo antes de calcular cualquier KPI.",
+      "Explorar la estructura: tipos de equipo, clientes, rango de fechas.",
+      "Diagnosticar qué se puede medir y qué no (el estado técnico real de cada equipo está en la planilla aparte).",
+      "Calcular una primera versión de ocupación y facturación por tipo de equipo.",
+      "Dejar preparado el archivo en la herramienta elegida.",
+    ],
+    tareasMixto: [
+      "Cruzar el KPI de ocupación y morosidad con los datos explorados.",
+      "Armar el dashboard: ocupación por tipo de equipo, evolución de la morosidad, facturación por cliente.",
+      "Redactar insights y la recomendación final de compra.",
+      "Preparar el pitch.",
+    ],
+    pitch: "La decisión + el KPI de ocupación de flota + el plan para financiar la renovación de equipos si compraran la empresa.",
+  },
+  {
+    code: "CL", n: 8, nombre: "Cementera del Litoral",
+    rubro: "Productora de cemento regional — 1 planta",
+    resumen: "Planta cementera de alcance regional, con capacidad instalada subutilizada y buena posición logística cerca de una ruta clave — potencial adquisición directa para un jugador nacional del sector.",
+    venta: "El grupo controlante decide concentrar sus activos en su planta principal y vender esta operación satélite.",
+    fortalezas: ["Capacidad instalada subutilizada: upside de crecimiento sin nueva inversión en planta.", "Buena posición logística, cerca de una ruta nacional clave."],
+    alertas: ["Participación de mercado en baja frente a los jugadores nacionales grandes.", "Necesita inversión importante para modernizar el horno.", "Contrato de suministro de gas vence en 18 meses."],
+    snapshot: [["Facturación anual", "≈ $3.800.000.000"], ["Antigüedad", "35 años"], ["Plantas", "1"], ["Empleados", "≈ 140"], ["Capacidad utilizada", "≈ 60%"]],
+    periodo: "24 meses", granularidad: "Una fila por mes y región de venta",
+    columnas: "Fecha (mes), Región de venta, Toneladas producidas, Toneladas vendidas, Precio por tonelada, Costo energético por tonelada, Participación de mercado estimada, Total facturado",
+    cualitativo: "Estado del contrato de suministro de gas (vence en 18 meses) — nota aparte.",
+    tareasNegocio: [
+      "Explorar la hoja Empleados: notar el envejecimiento del equipo de Mantenimiento técnico y el riesgo de fuga de conocimiento.",
+      "Explorar la hoja Clientes: distribuidores y hormigoneras por región.",
+      "Definir el KPI de capacidad ociosa como oportunidad de crecimiento.",
+      "Definir cómo pesar el vencimiento del contrato de gas en la valuación.",
+      "Fijar el criterio de decisión de compra.",
+      "Redactar la consigna para el área de Data.",
+    ],
+    tareasData: [
+      "Diagnosticar y limpiar los problemas de calidad del archivo antes de calcular cualquier KPI.",
+      "Explorar la estructura: regiones de venta, rango de fechas, evolución de la participación de mercado.",
+      "Diagnosticar qué se puede medir y qué no (el resultado de la renegociación del gas no está en los datos).",
+      "Calcular una primera versión de producción vs. capacidad instalada y participación de mercado por región.",
+      "Dejar preparado el archivo en la herramienta elegida.",
+    ],
+    tareasMixto: [
+      "Cruzar el KPI de capacidad ociosa con los datos explorados.",
+      "Armar el dashboard: producción vs. capacidad instalada, participación de mercado por región, costo energético.",
+      "Redactar insights y la recomendación final de compra.",
+      "Preparar el pitch.",
+    ],
+    pitch: "La decisión + el KPI de capacidad ociosa como oportunidad + cómo manejarían el vencimiento del contrato de gas.",
+  },
+];
+
+// Nombre real del archivo .xlsx de cada grupo, tal como está subido en la carpeta "grupos/"
+// junto a este index.html en el repo.
+const FILES = {
+  AC: "G1_Aridos_del_Cerro.xlsx",
+  HS: "G2_Hormigones_del_Sur.xlsx",
+  BSR: "G3_Bloquera_San_Rafael.xlsx",
+  DC: "G4_Distribuidora_Constructor.xlsx",
+  TF: "G5_TransCarga_Federal.xlsx",
+  QO: "G6_QuimiObra.xlsx",
+  RM: "G7_Rentamaq.xlsx",
+  CL: "G8_Cementera_del_Litoral.xlsx",
+};
+const DATA_DIR = "2610-LomaNegra/grupos/"; // este index.html vive en la RAÍZ del repo; los xlsx están en 2610-LomaNegra/grupos/
+
+const AGENDA = [
+  ["9:00 – 9:15", "Apertura conjunta y asignación de empresas."],
+  ["9:15 – 11:00", "Fase 1 · cada área trabaja por separado."],
+  ["11:15 – 13:00", "Fase 2 · grupos mixtos construyen la empresa completa."],
+  ["13:10 – 13:50", "Fase 3 · pitch de los 8 grupos (~3 min c/u)."],
+  ["13:50 – 14:00", "Cierre y entrega de diplomas."],
+];
+
+const main = document.getElementById("main");
+const chainNav = document.getElementById("chainNav");
+
+function buildNav(activeN) {
+  chainNav.innerHTML = GROUPS.map(g => `
+    <button class="chain-item ${g.n === activeN ? 'active' : ''}" onclick="goGroup(${g.n})">
+      <span class="num">${g.code} · 0${g.n}</span>
+      <span class="name">${g.nombre}</span>
+      <span class="rubro">${g.rubro}</span>
+    </button>
+  `).join("");
+}
+
+function closeRailMobile() {
+  document.getElementById("rail").classList.remove("open");
+}
+
+function goHome() {
+  buildNav(null);
+  window.scrollTo(0, 0);
+  main.innerHTML = `
+    <div class="eyebrow">DIGITAL HOUSE · PROGRAMA IA APLICADA · PROVEEDORES LOMA NEGRA</div>
+    <h1 class="hero">Ocho empresas.<br>Una <em>decisión</em> cada una: ¿la comprarían?</h1>
+    <p class="lede">Cada grupo recibe una empresa ficticia distinta, dentro del ecosistema de Loma Negra — cemento, áridos, hormigón, premoldeados, logística, aditivos, alquiler de maquinaria y distribución. El área de negocio define qué mirar; el área de Data limpia y construye; juntos deciden.</p>
+
+    <div class="agenda">
+      ${AGENDA.map(([t, d]) => `<div class="cell"><div class="t">${t}</div><div class="d">${d}</div></div>`).join("")}
+    </div>
+
+    <p class="map-label">Elegí un grupo para ver su ficha completa: la historia de la empresa, la estructura del archivo de datos y las tareas esperadas en cada fase.</p>
+    <div class="station-grid">
+      ${GROUPS.map(g => `
+        <button class="station" onclick="goGroup(${g.n})">
+          <div class="code">GRUPO ${g.n} · ${g.code}</div>
+          <div class="name">${g.nombre}</div>
+          <div class="rubro">${g.rubro}</div>
+        </button>
+      `).join("")}
+    </div>
+  `;
+  closeRailMobile();
+}
+
+function list(items) {
+  return `<ol>${items.map(i => `<li>${i}</li>`).join("")}</ol>`;
+}
+function bullets(items) {
+  return `<ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
+}
+
+function goGroup(n) {
+  const g = GROUPS.find(x => x.n === n);
+  buildNav(n);
+  window.scrollTo(0, 0);
+  main.innerHTML = `
+    <div class="crumb">GRUPO ${g.n} DE 8 · ${g.code}</div>
+    <div class="g-head"><h1>${g.nombre}</h1></div>
+    <p class="g-rubro">${g.rubro}</p>
+
+    <section class="block">
+      <h2>El caso</h2>
+      <p class="resumen">${g.resumen}</p>
+      <p class="venta"><strong style="color:var(--text)">¿Por qué está en venta?</strong><br>${g.venta}</p>
+    </section>
+
+    <section class="block">
+      <h2>A favor / Señales de alerta</h2>
+      <div class="twocol">
+        <div class="callout good"><div class="h">A FAVOR</div>${bullets(g.fortalezas)}</div>
+        <div class="callout bad"><div class="h">SEÑALES DE ALERTA</div>${bullets(g.alertas)}</div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Foto financiera (aprox.)</h2>
+      <table class="snap">${g.snapshot.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("")}</table>
+    </section>
+
+    <section class="block">
+      <h2>Estructura del archivo de datos</h2>
+      <div class="datafields">
+        <div class="row"><div class="k">PERÍODO</div><div class="v">${g.periodo}</div></div>
+        <div class="row"><div class="k">GRANULARIDAD</div><div class="v">${g.granularidad}</div></div>
+        <div class="row"><div class="k">COLUMNAS</div><div class="v">${g.columnas}</div></div>
+        <div class="row"><div class="k">DATO CUALITATIVO APARTE</div><div class="v">${g.cualitativo}</div></div>
+      </div>
+      <p class="note">El archivo trae problemas de calidad sembrados a propósito (duplicados, categorías inconsistentes, datos faltantes, valores atípicos) y hojas adicionales de Empleados y Clientes — para que el equipo de Data tenga que encontrarlos, no para que vengan resueltos.</p>
+      <a class="dlbtn" href="${DATA_DIR}${FILES[g.code]}" download>⬇ Descargar dataset (.xlsx)</a>
+    </section>
+
+    <section class="block">
+      <h2>Tareas esperadas por fase</h2>
+      <div class="phase-grid">
+        <div class="phase negocio">
+          <div class="ph-title">RRHH / FINANZAS / COMERCIAL</div>
+          <div class="ph-sub">Fase 1 — separados</div>
+          ${list(g.tareasNegocio)}
+        </div>
+        <div class="phase data">
+          <div class="ph-title">DATA</div>
+          <div class="ph-sub">Fase 1 — separados</div>
+          ${list(g.tareasData)}
+        </div>
+        <div class="phase mixto">
+          <div class="ph-title">GRUPO MIXTO</div>
+          <div class="ph-sub">Fase 2 — juntos</div>
+          ${list(g.tareasMixto)}
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Qué tiene que mostrar el pitch (Fase 3)</h2>
+      <div class="pitchbox"><div class="h">≈ 3 MINUTOS</div><p>${g.pitch}</p></div>
+    </section>
+
+    <div class="navfoot">
+      <button onclick="goGroup(${g.n > 1 ? g.n - 1 : 8})">← Grupo anterior</button>
+      <button onclick="goHome()">Ver los 8 grupos</button>
+      <button onclick="goGroup(${g.n < 8 ? g.n + 1 : 1})">Grupo siguiente →</button>
+    </div>
+  `;
+  closeRailMobile();
+}
+
+goHome();
+</script>
+
+</body>
+</html>
