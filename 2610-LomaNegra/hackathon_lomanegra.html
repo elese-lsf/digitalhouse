@@ -475,7 +475,8 @@
     <div class="rail-title">Hackathon<br><em>Loma Negra</em></div>
     <nav class="chain" id="chainNav"></nav>
     <div class="rail-foot">
-      <button onclick="goHome()">← Volver al inicio</button>
+      <button onclick="goIntegrantes()">👥 Integrantes por grupo</button>
+      <button onclick="goHome()" style="margin-top:6px;">← Volver al inicio</button>
     </div>
   </aside>
   <main id="main"></main>
@@ -769,14 +770,14 @@ const FILES = {
   RM: "G7_Rentamaq.xlsx",
   CL: "G8_Cementera_del_Litoral.xlsx",
 };
-const DATA_DIR = "grupos/"; // carpeta relativa al index.html con los 8 xlsx
+const DATA_DIR = "2610-LomaNegra/grupos/"; // este index.html vive en la RAÍZ del repo; los xlsx están en 2610-LomaNegra/grupos/
 
 const AGENDA = [
   ["9:00 – 9:15", "Apertura conjunta y asignación de empresas."],
   ["9:15 – 11:00", "Fase 1 · cada área trabaja por separado."],
   ["11:15 – 13:00", "Fase 2 · grupos mixtos construyen la empresa completa."],
-  ["13:10 – 13:50", "Fase 3 · pitch de los 8 grupos (~3 min c/u)."],
-  ["13:50 – 14:00", "Cierre y entrega de diplomas."],
+  ["13:00 – 13:40", "Fase 3 · pitch de los 8 grupos (~3 min c/u)."],
+  ["13:40 – 14:00", "Cierre y entrega de diplomas."],
 ];
 
 const main = document.getElementById("main");
@@ -794,6 +795,38 @@ function buildNav(activeN) {
 
 function closeRailMobile() {
   document.getElementById("rail").classList.remove("open");
+}
+
+function goIntegrantes() {
+  buildNav(null);
+  window.scrollTo(0, 0);
+  main.innerHTML = `
+    <div class="crumb">INTEGRANTES</div>
+    <h1 class="hero" style="max-width: 100%;">¿Quién está en <em>cada grupo</em>?</h1>
+    <p class="lede">La lista de nombre, rol y equipo vive en un solo archivo aparte — se actualiza sola, no hace falta tocar este sitio cada vez que cambie.</p>
+
+    <section class="block">
+      <h2>Archivo</h2>
+      <div class="datafields">
+        <div class="row"><div class="k">ARCHIVO</div><div class="v">Integrantes_grupos.xlsx</div></div>
+        <div class="row"><div class="k">UBICACIÓN</div><div class="v">2610-LomaNegra/Integrantes_grupos.xlsx</div></div>
+        <div class="row"><div class="k">COLUMNAS</div><div class="v">Nombre, Rol (RRHH/Finanzas/Comercial o Data), Equipo (Grupo 1 a 8)</div></div>
+      </div>
+      <a class="dlbtn" href="2610-LomaNegra/Integrantes_grupos.xlsx" download>⬇ Descargar Integrantes_grupos.xlsx</a>
+    </section>
+
+    <section class="block">
+      <h2>Qué grupo es cada empresa</h2>
+      <div class="datafields">
+        ${GROUPS.map(g => `<div class="row"><div class="k">GRUPO ${g.n}</div><div class="v">${g.nombre} (${g.code})</div></div>`).join("")}
+      </div>
+    </section>
+
+    <div class="navfoot">
+      <button onclick="goHome()">Ver los 8 grupos</button>
+    </div>
+  `;
+  closeRailMobile();
 }
 
 function goHome() {
