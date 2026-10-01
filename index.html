@@ -382,6 +382,23 @@
     line-height: 1.5;
   }
 
+  .member-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 10px;
+  }
+  .member-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--tone, var(--ink));
+    border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+  .member-card.negocio { --tone: #10D9A0; }
+  .member-card.data { --tone: #7C5CF6; }
+  .member-name { font-weight: 700; font-size: 0.92rem; color: var(--text); margin-bottom: 4px; }
+  .member-role { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted-2); }
+
   .dlbtn {
     display: inline-block;
     text-decoration: none;
@@ -797,30 +814,45 @@ function closeRailMobile() {
   document.getElementById("rail").classList.remove("open");
 }
 
+// Nómina por grupo. Cargar acá cuando estén confirmados los nombres:
+// { nombre: "Nombre Apellido", rol: "negocio" | "data" }
+// rol "negocio" = RRHH / Finanzas / Comercial · rol "data" = Data
+const MEMBERS = {
+  AC: [],
+  HS: [],
+  BSR: [],
+  DC: [],
+  TF: [],
+  QO: [],
+  RM: [],
+  CL: [],
+};
+
+function memberCard(m) {
+  const tone = m.rol === "data" ? "data" : "negocio";
+  const label = m.rol === "data" ? "DATA" : "RRHH / FIN / COMERCIAL";
+  return `<div class="member-card ${tone}"><div class="member-name">${m.nombre}</div><div class="member-role">${label}</div></div>`;
+}
+
 function goIntegrantes() {
   buildNav(null);
   window.scrollTo(0, 0);
   main.innerHTML = `
     <div class="crumb">INTEGRANTES</div>
     <h1 class="hero" style="max-width: 100%;">¿Quién está en <em>cada grupo</em>?</h1>
-    <p class="lede">La lista de nombre, rol y equipo vive en un solo archivo aparte — se actualiza sola, no hace falta tocar este sitio cada vez que cambie.</p>
+    <p class="lede">Un vistazo rápido de quién compone cada uno de los 8 grupos, por área.</p>
 
-    <section class="block">
-      <h2>Archivo</h2>
-      <div class="datafields">
-        <div class="row"><div class="k">ARCHIVO</div><div class="v">Integrantes_grupos.xlsx</div></div>
-        <div class="row"><div class="k">UBICACIÓN</div><div class="v">2610-LomaNegra/Integrantes_grupos.xlsx</div></div>
-        <div class="row"><div class="k">COLUMNAS</div><div class="v">Nombre, Rol (RRHH/Finanzas/Comercial o Data), Equipo (Grupo 1 a 8)</div></div>
-      </div>
-      <a class="dlbtn" href="2610-LomaNegra/Integrantes_grupos.xlsx" download>⬇ Descargar Integrantes_grupos.xlsx</a>
-    </section>
-
-    <section class="block">
-      <h2>Qué grupo es cada empresa</h2>
-      <div class="datafields">
-        ${GROUPS.map(g => `<div class="row"><div class="k">GRUPO ${g.n}</div><div class="v">${g.nombre} (${g.code})</div></div>`).join("")}
-      </div>
-    </section>
+    ${GROUPS.map(g => {
+      const members = MEMBERS[g.code] || [];
+      return `
+      <section class="block">
+        <h2>GRUPO ${g.n} · ${g.nombre}</h2>
+        ${members.length
+          ? `<div class="member-grid">${members.map(memberCard).join("")}</div>`
+          : `<p class="note" style="font-style: normal;">Integrantes a confirmar.</p>`
+        }
+      </section>`;
+    }).join("")}
 
     <div class="navfoot">
       <button onclick="goHome()">Ver los 8 grupos</button>
