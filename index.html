@@ -818,14 +818,14 @@ function closeRailMobile() {
 // { nombre: "Nombre Apellido", rol: "negocio" | "data" }
 // rol "negocio" = RRHH / Finanzas / Comercial · rol "data" = Data
 const MEMBERS = {
-  AC: [],
-  HS: [],
-  BSR: [],
-  DC: [],
-  TF: [],
-  QO: [],
-  RM: [],
-  CL: [],
+  AC: [{ nombre: "Leandro Paez", rol: "data" }, { nombre: "Federico Quintana", rol: "data" }, { nombre: "Luciano Borzatto", rol: "data" }, { nombre: "Anibal Pozo", rol: "data" }, { nombre: "Adrian Alejandro Avila Maizel", rol: "negocio" }, { nombre: "Cristian Klimisch", rol: "negocio" }, { nombre: "German Siciliano", rol: "negocio" }, { nombre: "Nicolás Lopez", rol: "negocio" }, { nombre: "Mariano Bernardi", rol: "negocio" }, { nombre: "Martin Singla", rol: "negocio" }, { nombre: "Nanci Broin", rol: "negocio" }],
+  HS: [{ nombre: "Pablo Alfredo Kuhn", rol: "data" }, { nombre: "Ariel Samec", rol: "data" }, { nombre: "Alejandro Giandinoto", rol: "data" }, { nombre: "Marcos Ferrero", rol: "data" }, { nombre: "Diego Belisario Teran Ulloa", rol: "negocio" }, { nombre: "Gabriela Piñeiro", rol: "negocio" }, { nombre: "Gisela Amelia Sambataro Oviedo", rol: "negocio" }, { nombre: "Tomas Caliendo Pereira", rol: "negocio" }, { nombre: "Marcos Bruno", rol: "negocio" }, { nombre: "Marisa Perez", rol: "negocio" }],
+  BSR: [{ nombre: "Hernan Enrique Ebenau", rol: "data" }, { nombre: "Fernando Trujillo", rol: "data" }, { nombre: "Sandra Carolina Challiol", rol: "data" }, { nombre: "Damian Eugenio Monserrat", rol: "data" }, { nombre: "Esteban Claps", rol: "negocio" }, { nombre: "Genaro Martin", rol: "negocio" }, { nombre: "Juan Manuel Acosta", rol: "negocio" }, { nombre: "Tomas Dispenza", rol: "negocio" }, { nombre: "Julio Iñiguez", rol: "negocio" }, { nombre: "Rolnado Prpic", rol: "negocio" }],
+  DC: [{ nombre: "Elias Tejada", rol: "data" }, { nombre: "Emanuel Nicolas Zarate", rol: "data" }, { nombre: "Claudia Marcela Rost", rol: "data" }, { nombre: "Luisina De Arcangelo", rol: "data" }, { nombre: "Fernanda Cruz", rol: "negocio" }, { nombre: "Gustavo Mumare", rol: "negocio" }, { nombre: "Nicolas Di Girolamo", rol: "negocio" }, { nombre: "Celina Del Valle Kap", rol: "negocio" }, { nombre: "Fernando Berrondo", rol: "negocio" }, { nombre: "Viviana /Roxana Jerez", rol: "negocio" }],
+  TF: [{ nombre: "Juan Manuel Saldaña Beccari", rol: "data" }, { nombre: "Federico Yedrasiak", rol: "data" }, { nombre: "Ignacio Ramos Vértiz", rol: "data" }, { nombre: "Alejandro Naymark", rol: "data" }, { nombre: "Fernando Andrada", rol: "negocio" }, { nombre: "Juan Carlos Main", rol: "negocio" }, { nombre: "Pedro Ahumada", rol: "negocio" }, { nombre: "Emiliano Montes De Oca", rol: "negocio" }, { nombre: "Esteban Cleps", rol: "negocio" }],
+  QO: [{ nombre: "Fabio Sabino Pugliese", rol: "data" }, { nombre: "Francisco Cisilotto", rol: "data" }, { nombre: "Camila Torres", rol: "data" }, { nombre: "Joaquín Flores", rol: "data" }, { nombre: "German Dario Navarrete", rol: "negocio" }, { nombre: "Marcelo Lacquaniti", rol: "negocio" }, { nombre: "Maria De Las Nieves Perez", rol: "negocio" }, { nombre: "Cristian Ruben Klimisch", rol: "negocio" }, { nombre: "Emiliano Cetra", rol: "negocio" }, { nombre: "Macarena Sebo", rol: "negocio" }],
+  RM: [{ nombre: "Facundo Onandia", rol: "data" }, { nombre: "Ezequiel Simoes", rol: "data" }, { nombre: "Leonardo Cordani", rol: "data" }, { nombre: "Luis Medina", rol: "data" }, { nombre: "Maria Florencia Dominguez", rol: "negocio" }, { nombre: "Marina Belen Medina", rol: "negocio" }, { nombre: "Martin Guanez", rol: "negocio" }, { nombre: "Valeria Escobar", rol: "negocio" }, { nombre: "Florencia Dominguez", rol: "negocio" }, { nombre: "Marcelo Oscar Hernandez", rol: "negocio" }],
+  CL: [{ nombre: "Mariano Martin Bernardi", rol: "data" }, { nombre: "Adriana Dipascua", rol: "data" }, { nombre: "Veronica Patricia Galvez", rol: "data" }, { nombre: "Nanci Broin", rol: "data" }, { nombre: "Martin Savy", rol: "negocio" }, { nombre: "Martin Singla Ruiz-Olalde", rol: "negocio" }, { nombre: "Natalia Barbiero", rol: "negocio" }, { nombre: "Nicolás Illes", rol: "negocio" }, { nombre: "Marcelo Coisson", rol: "negocio" }, { nombre: "Nadia Blanco", rol: "negocio" }],
 };
 
 function memberCard(m) {
